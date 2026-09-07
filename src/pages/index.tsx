@@ -19,7 +19,7 @@ function HomepageHeader() {
         </Heading>
         <p className="hero__subtitle">
           <Translate id="homepage.hero.tagline">
-            The next-generation SRS documentation
+            Simple Realtime Server
           </Translate>
         </p>
         <div className={styles.buttons}>
@@ -37,15 +37,13 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
       title={translate(
         {
           id: 'homepage.meta.title',
-          message: 'Hello from {siteTitle}',
+          message: 'SRS (Simple Realtime Server)',
         },
-        {siteTitle: siteConfig.title},
       )}
       description={translate({
         id: 'homepage.meta.description',

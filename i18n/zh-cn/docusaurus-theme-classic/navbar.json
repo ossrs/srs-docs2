@@ -1,10 +1,10 @@
 {
   "title": {
-    "message": "SRS Docs2",
+    "message": "SRS",
     "description": "The title in the navbar"
   },
   "logo.alt": {
-    "message": "SRS Docs2 标志",
+    "message": "SRS 标志",
     "description": "The alt text of navbar logo"
   },
   "item.label.Docs": {

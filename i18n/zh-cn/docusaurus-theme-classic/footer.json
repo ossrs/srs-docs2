@@ -36,7 +36,7 @@
     "description": "The label of footer link with label=GitHub linking to https://github.com/ossrs/srs"
   },
   "copyright": {
-    "message": "版权所有 © 2026 SRS Docs2。使用 Docusaurus 构建。",
+    "message": "版权所有 © 2026 SRS。使用 Docusaurus 构建。",
     "description": "The footer copyright"
   },
   "link.item.label.Security": {

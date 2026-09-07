@@ -90,7 +90,7 @@ for (const locale of locales) {
   const chinese = locale === 'zh-cn';
   await expectRenderedPage(`/lts/${locale}/`, [
     `lang=${chinese ? 'zh-CN' : 'en-US'}`,
-    'SRS Docs2',
+    chinese ? 'SRS（简单实时服务器） | SRS' : 'SRS (Simple Realtime Server) | SRS',
     `/lts/${locale}/docs/v6/doc/introduction`,
     chinese ? '简单易用' : 'Easy to Use',
     chinese ? '文档' : 'Docs',

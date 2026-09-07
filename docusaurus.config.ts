@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'SRS Docs2',
-  tagline: 'The next-generation SRS documentation',
+  title: 'SRS',
+  tagline: 'Simple Realtime Server',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -104,9 +104,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'SRS Docs2',
+      title: 'SRS',
       logo: {
-        alt: 'SRS Docs2 Logo',
+        alt: 'SRS Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -178,7 +178,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} SRS Docs2. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} SRS. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

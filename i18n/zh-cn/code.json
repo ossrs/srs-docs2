@@ -330,7 +330,7 @@
     "message": "Docusaurus 教程——5 分钟 ⏱️"
   },
   "homepage.meta.title": {
-    "message": "欢迎使用 {siteTitle}"
+    "message": "SRS（简单实时服务器）"
   },
   "homepage.meta.description": {
     "message": "新一代 SRS 文档框架"
@@ -354,6 +354,6 @@
     "message": "复用 React 即可扩展或自定义网站布局，同时继续使用相同的页眉和页脚。"
   },
   "homepage.hero.tagline": {
-    "message": "新一代 SRS 文档"
+    "message": "简单实时服务器"
   }
 }
