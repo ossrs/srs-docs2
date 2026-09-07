@@ -73,16 +73,18 @@ function escapeRegExp(value) {
 }
 
 await expectRedirect('/', 302, '/lts/en-us/');
-await expectRedirect('/lts', 302, '/lts/zh-cn/');
-await expectRedirect('/lts/', 302, '/lts/zh-cn/');
-await expectRedirect('/lts/docs/v6/doc/introduction', 302, '/lts/zh-cn/docs/v6/doc/introduction');
+await expectRedirect('/lts', 302, '/lts/en-us/');
+await expectRedirect('/lts/', 302, '/lts/en-us/');
+await expectRedirect('/lts/docs/v6/doc/introduction', 302, '/lts/en-us/docs/v6/doc/introduction');
+await expectRedirect('/lts/blog', 302, '/lts/en-us/blog');
+await expectRedirect('/lts/security-advisories', 302, '/lts/en-us/security-advisories');
 await expectRedirect(
   '/lts/en-us/zh-cn/docs/v6/doc/introduction',
   302,
   '/lts/zh-cn/docs/v6/doc/introduction',
 );
 await expectRedirect('/lts/en-us/docs/v6/doc/introduction/', 302, '/lts/en-us/docs/v6/doc/introduction');
-await expectRedirect('/lts/?source=test', 302, '/lts/zh-cn/?source=test');
+await expectRedirect('/lts/?source=test', 302, '/lts/en-us/?source=test');
 
 for (const locale of locales) {
   const chinese = locale === 'zh-cn';

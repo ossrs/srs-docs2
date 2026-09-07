@@ -77,13 +77,14 @@ The two locale-specific development commands use their production-compatible pre
 `/lts/en-us/` and `/lts/zh-cn/`.
 
 `npm run serve` starts the compatibility preview. Unlike the raw Docusaurus static server, it
-also reproduces the important entry redirects, including `/` to English and `/lts/` to Chinese.
+also applies the Docs2 default-language policy: `/`, `/lts`, `/lts/`, and locale-less routes all
+redirect to English.
 Use `npm run serve:raw` only when diagnosing Docusaurus itself.
 
 ## Server-owned compatibility redirects
 
 Docusaurus owns generated locale/version URLs. The outer production web server owns compatibility
-redirects such as `/` to `/lts/en-us/`, `/lts` to `/lts/zh-cn/`, locale-less docs/blog routes to
-Chinese, and malformed nested-locale repair. The local compatibility preview reproduces those
-important rules so development entry points behave like production; final deployment will still
-implement and verify them at the server layer.
+redirects. Docs2's chosen policy sends `/`, `/lts`, `/lts/`, and locale-less docs/blog/standalone
+routes to English at `/lts/en-us/...`; malformed nested-locale repair still preserves the explicit
+locale encoded in the malformed route. The local compatibility preview implements these rules;
+final deployment must apply and verify the same policy at the server layer.

@@ -31,18 +31,29 @@ npm run build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-## Deployment
+## Docker HTTP image
 
-Using SSH:
-
-```bash
-USE_SSH=true npm run deploy
-```
-
-Not using SSH:
+Build a self-contained image containing both the English and Chinese production
+sites:
 
 ```bash
-GIT_USER=<Your GitHub username> npm run deploy
+docker build -t srs-docs2:local .
 ```
 
-If you are using GitHub Pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+The container listens for HTTP on port `8080`. To expose it as local port
+`8080`:
+
+```bash
+docker run --rm --name srs-docs2 -p 8080:8080 srs-docs2:local
+```
+
+Then open <http://127.0.0.1:8080/lts/>. To publish it on a server's standard
+HTTP port instead, map host port `80` to the container's unprivileged port:
+
+```bash
+docker run -d --restart unless-stopped --name srs-docs2 \
+  -p 80:8080 srs-docs2:local
+```
+
+The image serves HTTP only. TLS certificates and HTTPS termination are
+intentionally outside the container for now.

@@ -38,7 +38,7 @@ function redirect(response, location, statusCode = 302) {
 
 function compatibilityRedirect(pathname) {
   if (pathname === '/') return '/lts/en-us/';
-  if (pathname === '/lts' || pathname === '/lts/') return '/lts/zh-cn/';
+  if (pathname === '/lts' || pathname === '/lts/') return '/lts/en-us/';
   if (pathname === '/lts/en-us') return {location: '/lts/en-us/', statusCode: 301};
   if (pathname === '/lts/zh-cn') return {location: '/lts/zh-cn/', statusCode: 301};
 
@@ -49,13 +49,13 @@ function compatibilityRedirect(pathname) {
 
   const localeLessCollection = pathname.match(/^\/lts\/(docs|blog)(\/.*)?$/);
   if (localeLessCollection) {
-    return `/lts/zh-cn/${localeLessCollection[1]}${localeLessCollection[2] ?? ''}`;
+    return `/lts/en-us/${localeLessCollection[1]}${localeLessCollection[2] ?? ''}`;
   }
 
   const localeLessPage = pathname.match(
     /^\/lts\/(about|contact|faq|guide|how-to-file-pr|license|product|security-advisories|cloud)(?:\/.*)?$/,
   );
-  if (localeLessPage) return `/lts/zh-cn/${localeLessPage[1]}`;
+  if (localeLessPage) return `/lts/en-us/${localeLessPage[1]}`;
   if (pathname.startsWith('/oryx')) return '/lts/en-us/docs/v6/doc/getting-started-oryx';
 
   return undefined;
@@ -134,5 +134,5 @@ const server = createServer((request, response) => {
 server.listen(port, host, () => {
   console.log(`Serving the compatibility preview at http://${host}:${port}/lts/`);
   console.log('  /       -> /lts/en-us/');
-  console.log('  /lts/   -> /lts/zh-cn/');
+  console.log('  /lts/   -> /lts/en-us/');
 });
