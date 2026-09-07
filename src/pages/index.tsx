@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
+import Translate, {translate} from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
@@ -16,12 +17,18 @@ function HomepageHeader() {
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle">
+          <Translate id="homepage.hero.tagline">
+            The next-generation SRS documentation
+          </Translate>
+        </p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            to="/docs/v6/doc/introduction">
+            <Translate id="homepage.hero.tutorialLink">
+              Docusaurus Tutorial - 5min ⏱️
+            </Translate>
           </Link>
         </div>
       </div>
@@ -33,8 +40,17 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={translate(
+        {
+          id: 'homepage.meta.title',
+          message: 'Hello from {siteTitle}',
+        },
+        {siteTitle: siteConfig.title},
+      )}
+      description={translate({
+        id: 'homepage.meta.description',
+        message: 'The next-generation SRS documentation framework',
+      })}>
       <HomepageHeader />
       <main>
         <HomepageFeatures />

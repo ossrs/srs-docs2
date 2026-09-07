@@ -1,0 +1,58 @@
+---
+sidebar_position: 2
+slug: /doc/getting-started-cdk
+---
+
+# CDK
+
+文档是通过以下功能连接起来的**一组页面**：
+
+- **侧边栏**
+- **上一页/下一页导航**
+- **版本管理**
+
+## 创建第一篇文档
+
+创建 Markdown 文件 `docs/hello.md`：
+
+```md title="docs/hello.md"
+# 你好
+
+这是我的**第一篇 Docusaurus 文档**！
+```
+
+现在可以在 [http://localhost:3000/docs/hello](http://localhost:3000/docs/hello) 查看这篇新文档。
+
+## 配置侧边栏
+
+Docusaurus 会根据 `docs` 文件夹自动**创建侧边栏**。
+
+添加元数据可以自定义侧边栏标签和位置：
+
+```md title="docs/hello.md" {1-4}
+---
+sidebar_label: '你好！'
+sidebar_position: 3
+---
+
+# 你好
+
+这是我的**第一篇 Docusaurus 文档**！
+```
+
+也可以在 `sidebars.js` 中明确配置侧边栏：
+
+```js title="sidebars.js"
+export default {
+  tutorialSidebar: [
+    'intro',
+    // highlight-next-line
+    'hello',
+    {
+      type: 'category',
+      label: '教程',
+      items: ['tutorial-basics/create-a-document'],
+    },
+  ],
+};
+```

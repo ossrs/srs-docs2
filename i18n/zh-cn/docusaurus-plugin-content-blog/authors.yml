@@ -1,0 +1,25 @@
+yangshun:
+  name: Yangshun Tay
+  title: 前 Meta 高级工程师，GreatFrontEnd 联合创始人
+  url: https://linkedin.com/in/yangshun
+  image_url: https://github.com/yangshun.png
+  page: true
+  socials:
+    x: yangshunz
+    linkedin: yangshun
+    github: yangshun
+    newsletter: https://www.greatfrontend.com
+
+slorber:
+  name: Sébastien Lorber
+  title: Docusaurus 维护者
+  url: https://sebastienlorber.com
+  image_url: https://github.com/slorber.png
+  page:
+    # 自定义作者页面的网址：/blog/authors/<permalink>
+    permalink: '/all-sebastien-lorber-articles'
+  socials:
+    x: sebastienlorber
+    linkedin: sebastienlorber
+    github: slorber
+    newsletter: https://thisweekinreact.com

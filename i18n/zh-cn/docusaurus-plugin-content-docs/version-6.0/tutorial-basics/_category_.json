@@ -1,0 +1,10 @@
+{
+  "label": "起步",
+  "position": 2,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "用 5 分钟了解 Docusaurus 最重要的概念。",
+    "slug": "/category/getting-started"
+  }
+}

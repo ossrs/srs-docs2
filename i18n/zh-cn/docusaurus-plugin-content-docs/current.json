@@ -1,0 +1,18 @@
+{
+  "version.label": {
+    "message": "8.0（不稳定版）",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Getting Started": {
+    "message": "起步",
+    "description": "The label for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Getting Started.link.generated-index.description": {
+    "message": "用 5 分钟了解 Docusaurus 最重要的概念。",
+    "description": "The generated-index page description for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Main Protocols": {
+    "message": "核心协议",
+    "description": "The label for category 'Main Protocols' in sidebar 'tutorialSidebar'"
+  }
+}
