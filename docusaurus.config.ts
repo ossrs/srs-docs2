@@ -178,7 +178,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} SRS. Built with Docusaurus.`,
+      copyright: `©2013~2026 OSSRS Community<br />Official Address: 4711 Yonge St, North York, ON M2N 7E4, Canada`,
     },
     prism: {
       theme: prismThemes.github,
