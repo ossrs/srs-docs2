@@ -560,9 +560,37 @@ SRT over IPv6保持与IPv4相同的性能特征：
 
 ## VLC
 
-VLC有一个重要的限制：它不支持`streamid` URL参数。当VLC连接到SRT服务器时，无论你在URL中输入什么，它总是发送一个空的`SRTO_STREAMID`套接字选项。这意味着VLC只能使用简单的URL格式`srt://127.0.0.1:10080`，不能带任何streamid参数。
+VLC 3.0.17及以上版本支持SRT的`SRTO_STREAMID`套接字选项。但是，本文使用的SRS结构化stream ID以`#`开头，
+例如`#!::r=live/livestream,m=request`，而VLC会把这个字符解析为URL片段的开始。因此，不要把这个SRS
+stream ID直接追加到VLC的网络URL中。请使用简单URL`srt://127.0.0.1:10080`，并在VLC的SRT设置中
+单独配置stream ID。
 
-为了支持VLC和其他不设置`SRTO_STREAMID`的客户端，SRS提供了`default_streamid`配置选项。当客户端连接时没有设置streamid，SRS将使用这个配置的默认值。默认情况下，为了向后兼容，SRS使用`#!::r=live/livestream,m=publish`，但对于VLC播放，你应该将其配置为使用`m=request`模式。
+在VLC用户界面中设置stream ID：
+
+1. 打开VLC偏好设置：
+   - Windows或Linux：选择 **工具 > 偏好设置**。
+   - macOS：选择 **VLC > 设置…**。在旧版本中，该菜单项可能名为 **偏好设置…**。
+2. 打开高级设置：
+   - Windows或Linux：在左下角将 **显示设置** 切换为 **全部**。
+   - macOS：点击左下角的 **显示全部**。
+3. 选择 **输入/编解码器 > 访问模块 > SRT**。
+4. 在 **SRT Stream ID** 中输入`#!::r=live/livestream,m=request`。
+5. 点击 **保存**。
+6. 打开网络串流：
+   - Windows或Linux：选择 **媒体 > 打开网络串流**。
+   - macOS：选择 **文件 > 打开网络**。
+7. 输入`srt://127.0.0.1:10080`并开始播放。
+
+VLC会持久保存该设置，并将其应用到之后的SRT连接。如果要播放其他流，请修改或清空该设置。
+也可以从命令行为单次VLC运行指定stream ID：
+
+```bash
+vlc --streamid='#!::r=live/livestream,m=request' 'srt://127.0.0.1:10080'
+```
+
+对于旧版VLC，或者VLC的stream ID字段为空时，SRS提供了`default_streamid`配置选项。当客户端连接时
+没有设置`SRTO_STREAMID`，SRS将使用这个配置的默认值。默认情况下，为了向后兼容，SRS使用
+`#!::r=live/livestream,m=publish`，但对于VLC播放，应将其配置为`m=request`模式。
 
 SRS提供了一个针对VLC兼容性优化的配置文件`conf/srt.vlc.conf`。使用此配置启动SRS：
 
@@ -584,14 +612,13 @@ ffmpeg -re -i ./doc/source.flv -c copy -pes_payload_size 0 -f mpegts \
   'srt://127.0.0.1:10080?streamid=#!::r=live/livestream,m=publish'
 ```
 
-然后使用VLC播放，使用简单的URL（VLC将使用服务器的默认streamid，即`m=request`）：
+然后，按照上述步骤配置VLC的 **SRT Stream ID**，或者将该字段留空以使用服务器的
+`default_streamid`。在VLC中打开该流：
 
 - 打开VLC Media Player
 - 进入 媒体 → 打开网络串流
 - 输入URL：`srt://127.0.0.1:10080`
 - 点击播放
-
-> Note: VLC不支持带streamid的SRT，所以你应该使用简单的URL格式`srt://127.0.0.1:10080`，不要带任何streamid参数。
 
 你也可以使用FFplay播放，显式设置streamid：
 
@@ -599,7 +626,9 @@ ffmpeg -re -i ./doc/source.flv -c copy -pes_payload_size 0 -f mpegts \
 ffplay 'srt://127.0.0.1:10080?streamid=#!::r=live/livestream,m=request'
 ```
 
-客户端之间的关键区别：VLC总是使用服务器的`default_streamid`配置，而FFmpeg/FFplay/OBS可以在URL或设置中设置streamid，这会覆盖服务器默认值。
+客户端之间的关键区别是SRS stream ID的提供方式。FFmpeg、FFplay和OBS可以在URL或设置中指定它。
+VLC 3.0.17及以上版本可以通过单独的 **SRT Stream ID** 设置或`--streamid`命令行选项发送它。如果VLC没有
+发送stream ID，SRS将回退到`default_streamid`。
 
 ## Q&A
 
@@ -608,4 +637,3 @@ ffplay 'srt://127.0.0.1:10080?streamid=#!::r=live/livestream,m=request'
 > 是的，支持。您可以使用OBS/FFmpeg将SRT流推送到SRS，SRS将SRT流转换为RTMP协议。然后，您可以将RTMP转换为HLS、FLV、WebRTC，并将RTMP流转发到Nginx。
 
 ![](https://ossrs.net/gif/v1/sls.gif?site=ossrs.net&path=/lts/doc/zh/v7/srt)
-
