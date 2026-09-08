@@ -9,7 +9,9 @@ RUN npm ci
 
 COPY . .
 
-# Build and validate both locale trees before creating the runtime image.
+# Build and validate both locale trees before creating the runtime image. The URL
+# contract is vendored under references/url-inventory, so this build needs no build
+# context beyond the repository itself.
 RUN npm run typecheck \
     && npm run check:translations \
     && npm run build \

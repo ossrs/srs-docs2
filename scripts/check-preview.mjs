@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import http from 'node:http';
-import {join} from 'node:path';
+
+import {inventoryUrls} from './url-inventory.mjs';
 
 const origin = process.env.PREVIEW_ORIGIN ?? 'http://127.0.0.1:3000';
-const inventoryDir = join(import.meta.dirname, '..', '..', '..', 'references', 'url-inventory');
 
 function request(path) {
   return new Promise((resolve, reject) => {
@@ -93,9 +92,7 @@ await expectPage('/lts/en-us/security-advisories', ['SRS Security', 'CVE-2024-29
 await expectPage('/lts/zh-cn/security-advisories', ['SRS Security', 'CVE-2024-29882']);
 
 function inventoryPaths(name) {
-  return readFileSync(join(inventoryDir, `${name}.txt`), 'utf8')
-    .trim()
-    .split('\n')
+  return inventoryUrls(name)
     .map((url) => new URL(url).pathname)
     .filter((path) => !path.endsWith('/404.html'));
 }
