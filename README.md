@@ -1,11 +1,10 @@
 # SRS Docs2
 
-This is the clean-room successor prototype for the SRS documentation website. It is
-built with [Docusaurus](https://docusaurus.io/), a modern static website generator.
-
-The initial checkpoint deliberately retains the Docusaurus sample content. SRS content,
-localization, versioning, routes, and deployment behavior will be introduced in reviewed
-migration phases rather than copied into the framework all at once.
+This is the Docusaurus 3 successor to the legacy SRS documentation website. The current migration
+candidate contains the complete bilingual SRS documentation, frozen v4-v7 versions, current/v8
+content, blog, standalone pages, navigation, components, and static assets from legacy release
+`v1.0.481`. Framework-compatibility and link changes are intentionally mechanical; content
+modernization belongs in separately reviewed changes after migration.
 
 ## Installation
 
@@ -17,11 +16,15 @@ npm install
 
 ## Local Development
 
+Use `npm run start:en` or `npm run start:zh` for single-locale authoring. For acceptance testing,
+build both locales and run the compatibility preview:
+
 ```bash
-npm run start
+npm run build
+npm run serve
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+Then open <http://127.0.0.1:3000/lts/>.
 
 ## Build
 
@@ -30,6 +33,17 @@ npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+The complete local validation sequence is:
+
+```bash
+npm run typecheck
+npm run build
+npm run check:translations
+npm run check:urls
+npm run serve
+npm run check:preview
+```
 
 ## Docker HTTP image
 

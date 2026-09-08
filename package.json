@@ -1,6 +1,6 @@
 {
   "name": "srs-docs2",
-  "version": "2.0.2",
+  "version": "2.0.5",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -28,6 +28,8 @@
     "@docusaurus/preset-classic": "3.10.2",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
+    "mdx-mermaid": "^2.0.4",
+    "mermaid": "^10.8.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

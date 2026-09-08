@@ -1,25 +1,5 @@
-yangshun:
-  name: Yangshun Tay
-  title: Ex-Meta Staff Engineer, Co-founder GreatFrontEnd
-  url: https://linkedin.com/in/yangshun
-  image_url: https://github.com/yangshun.png
-  page: true
-  socials:
-    x: yangshunz
-    linkedin: yangshun
-    github: yangshun
-    newsletter: https://www.greatfrontend.com
-
-slorber:
-  name: Sébastien Lorber
-  title: Docusaurus maintainer
-  url: https://sebastienlorber.com
-  image_url: https://github.com/slorber.png
-  page:
-    # customize the url of the author page at /blog/authors/<permalink>
-    permalink: '/all-sebastien-lorber-articles'
-  socials:
-    x: sebastienlorber
-    linkedin: sebastienlorber
-    github: slorber
-    newsletter: https://thisweekinreact.com
+TencentCloud:
+  name: "腾讯云音视频"
+  title: 腾讯云音视频
+  url: https://cloud.tencent.com/
+  image_url: https://mp.weixin.qq.com/mp/qrcode?scene=10000004&size=102&__biz=MzIzMjY3MjYyOA==&mid=2247502103&idx=1&sn=6c2cc942513c4f14773fabff40a367e4&send_time=

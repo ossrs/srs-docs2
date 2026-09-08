@@ -1,8 +1,8 @@
 # Public URL model
 
-Docs2 preserves the path model of the current SRS documentation before any real content is
-migrated. The Docusaurus sample documents are intentionally copied into every frozen version so
-the locale and version machinery can be tested independently of content migration.
+Docs2 preserves the complete generated page-route model of legacy release `v1.0.481`. The current
+candidate contains all legacy documents, blog posts, standalone pages, components, and assets;
+there is no remaining Docusaurus sample-document placeholder set.
 
 ## Canonical route shape
 
@@ -16,7 +16,7 @@ https://ossrs.io/lts/<locale>/docs/<version>/<document>
 - SRS 6 remains the stable/default documentation version.
 - All locale prefixes are explicit, including English.
 
-Examples using the current mock document:
+Examples using the migrated Introduction:
 
 ```text
 /lts/en-us/docs/v6/doc/introduction
@@ -25,9 +25,8 @@ Examples using the current mock document:
 /lts/zh-cn/docs/v8/doc/introduction
 ```
 
-Mock source folders organize the sidebar as **Getting Started** and **Main Protocols**, but those
-folder names do not leak into public document URLs. Every mock doc has an explicit V1-aligned flat
-slug under `/doc/`, for example:
+The legacy sidebar groups do not leak into public document URLs. Main documents remain flat under
+`/doc/`, for example:
 
 ```text
 /lts/en-us/docs/v8/doc/getting-started
@@ -39,11 +38,9 @@ slug under `/doc/`, for example:
 /lts/en-us/docs/v8/doc/hls
 ```
 
-This follows the V1 rule demonstrated by `/docs/v8/doc/getting-started-cdk`: navigation grouping is
-independent from the flat `/doc/<document>` public path.
+Navigation grouping is independent from the flat `/doc/<document>` public path.
 
-Standalone pages sit beside—not inside—the docs and blog route spaces. The first representative
-standalone page preserves the V1 security routes:
+Standalone pages sit beside—not inside—the docs and blog route spaces, including:
 
 ```text
 /lts/en-us/security-advisories
@@ -52,13 +49,17 @@ standalone page preserves the V1 security routes:
 
 ## Source layout
 
-- SRS 8 mock source: `docs/`
-- Frozen mock sources: `versioned_docs/version-{4.0,5.0,6.0,7.0}/`
+- SRS 8 source: `docs/` (92 English documents)
+- Frozen sources: `versioned_docs/version-{4.0,5.0,6.0,7.0}/` (81/89/89/92 English documents)
 - Frozen sidebars: `versioned_sidebars/`
-- Chinese mock translations live under `i18n/zh-cn/`. Current/v8 docs, each frozen v4-v7
-  version, blog posts and metadata, the Markdown standalone page, navigation, footer, framework
-  UI, and custom homepage text all have separate Chinese sources. No real SRS content has been
-  migrated.
+- Chinese translations live under `i18n/zh-cn/`, with matching current/v8 and frozen v4-v7
+  document trees, 34 blog posts, 11 standalone content pages, and localized UI metadata.
+- Legacy navigation hyperlinks are converted to relative references so local, staging, locale,
+  and version context is preserved. Literal absolute URLs inside fenced copy/paste examples are
+  retained only where an independently usable public URL is the example itself.
+
+Generated route sets are checked exactly against the recorded production inventories: 178 v4,
+194 v5, 194 v6, 200 v7, 200 v8, 215 blog/tag, and 28 standalone routes (1,209 total).
 
 ## Build and preview
 

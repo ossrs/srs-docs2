@@ -1,28 +1,21 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+import mdxMermaid from 'mdx-mermaid';
 
 const config: Config = {
   title: 'SRS',
   tagline: 'Simple Realtime Server',
   favicon: 'img/favicon.ico',
+  future: {v4: true},
 
-  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
-  future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
-  },
-
-  // Keep the existing public SRS URL namespace. Each locale overrides this
-  // base URL below so English is explicit too: /lts/en-us/ and /lts/zh-cn/.
+  // Keep the V1 public namespace while letting every locale retain an explicit prefix.
   url: 'https://ossrs.io',
   baseUrl: '/lts/',
-
   organizationName: 'ossrs',
   projectName: 'srs-docs2',
-
   onBrokenLinks: 'throw',
+  markdown: {hooks: {onBrokenMarkdownLinks: 'warn'}},
 
   i18n: {
     defaultLocale: 'en-us',
@@ -50,140 +43,95 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/ossrs/srs-docs2/edit/main/',
-          // Preserve the V1 route contract. `current` is SRS 8 while SRS 6
-          // remains the stable/default version selected by docs navigation.
+          remarkPlugins: [mdxMermaid],
           lastVersion: '6.0',
           versions: {
-            current: {
-              label: '8.0 (Unstable)',
-              path: 'v8',
-            },
-            '7.0': {
-              label: '7.0 (Unstable)',
-              path: 'v7',
-            },
-            '6.0': {
-              label: '6.0 (Stable)',
-              path: 'v6',
-            },
-            '5.0': {
-              label: '5.0 (Archived)',
-              path: 'v5',
-            },
-            '4.0': {
-              label: '4.0 (Archived)',
-              path: 'v4',
-            },
+            current: {label: '8.0 (Unstable) 🚧🚀', path: 'v8'},
+            '7.0': {label: '7.0 (Unstable) 🚧🚀', path: 'v7'},
+            '6.0': {label: '6.0 (Stable) ✅', path: 'v6'},
+            '5.0': {label: '5.0 (Archived) 📦', path: 'v5'},
+            '4.0': {label: '4.0 (Archived) 📦', path: 'v4'},
           },
         },
         blog: {
           showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
+          authorsMapPath: 'authors-disabled.yml',
+          blogSidebarCount: 'ALL',
+          feedOptions: {type: ['rss', 'atom'], xslt: true},
           editUrl: 'https://github.com/ossrs/srs-docs2/edit/main/',
-          // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
         },
-        theme: {
-          customCss: './src/css/custom.css',
-        },
+        theme: {customCss: './src/css/custom.css'},
       } satisfies Preset.Options,
     ],
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
-    colorMode: {
-      respectPrefersColorScheme: true,
-    },
+    colorMode: {respectPrefersColorScheme: true},
     navbar: {
       title: 'SRS',
-      logo: {
-        alt: 'SRS Logo',
-        src: 'img/logo.svg',
-      },
+      logo: {alt: 'SRS(Simple Realtime Server)', src: 'img/srs-200x200.png'},
       items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Docs',
-        },
+        {type: 'doc', docId: 'doc/getting-started', position: 'left', label: 'Docs'},
         {to: '/blog', label: 'Blog', position: 'left'},
+        {type: 'doc', docId: 'tutorial/srs-server', position: 'left', label: 'Tutorial'},
+        {
+          type: 'dropdown',
+          label: 'FAQ',
+          position: 'left',
+          items: [
+            {to: '/faq', label: 'SRS'},
+            {to: '/faq-oryx', label: 'Oryx'},
+          ],
+        },
         {to: '/security-advisories', label: 'Security', position: 'left'},
         {
-          type: 'docsVersionDropdown',
-          position: 'right',
-          dropdownActiveClassDisabled: true,
+          type: 'dropdown',
+          label: 'Community',
+          position: 'left',
+          items: [
+            {to: '/about', label: 'About'},
+            {to: '/faq', label: 'FAQ: SRS'},
+            {to: '/faq-oryx', label: 'FAQ: Oryx'},
+            {to: '/contact', label: 'Contact'},
+            {to: '/how-to-file-pr', label: 'Contributing'},
+            {type: 'doc', docId: 'tools/utility', label: 'Tools'},
+            {to: '/product', label: 'Milestones'},
+            {to: '/license', label: 'LICENSE'},
+          ],
         },
+        {href: 'https://github.com/ossrs/srs', label: 'GitHub', position: 'left'},
+        {type: 'docsVersionDropdown', position: 'right', dropdownActiveClassDisabled: true},
         {type: 'localeDropdown', position: 'right'},
-        {
-          href: 'https://github.com/ossrs/srs',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     footer: {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Learn',
           items: [
-            {
-              label: 'Tutorial',
-              to: '/docs/v6/doc/introduction',
-            },
+            {label: 'Tutorial', to: '/docs/v6/tutorial/srs-server'},
+            {label: 'Docs', to: '/docs/v6/doc/getting-started'},
+            {label: 'Blog', to: '/blog'},
           ],
         },
         {
           title: 'Community',
           items: [
-            {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
-            },
+            {label: 'Contact', to: '/contact'},
+            {label: 'Community', to: '/how-to-file-pr'},
           ],
         },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
-              label: 'Security',
-              to: '/security-advisories',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/ossrs/srs',
-            },
-          ],
-        },
+        {title: 'Discussion', items: [{label: 'Discord', href: 'https://discord.gg/yZ4BnPmHAd'}]},
+        {title: 'More', items: [{label: 'Blog', to: '/blog'}]},
       ],
-      copyright: `©2013~2026 OSSRS Community<br />Official Address: 4711 Yonge St, North York, ON M2N 7E4, Canada`,
+      copyright:
+        '©2013~2026 OSSRS Community<br />Official Address: 4711 Yonge St, North York, ON M2N 7E4, Canada',
     },
-    prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
-    },
+    prism: {theme: prismThemes.github, darkTheme: prismThemes.dracula},
   } satisfies Preset.ThemeConfig,
 };
 

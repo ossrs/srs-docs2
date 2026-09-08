@@ -1,18 +1,26 @@
 {
-  "version.label": {
-    "message": "4.0（归档版）",
-    "description": "The label for version 4.0"
+  "sidebar.docsSidebar.category.Getting Started": {
+    "message": "起步"
   },
-  "sidebar.tutorialSidebar.category.Getting Started": {
-    "message": "起步",
-    "description": "The label for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  "sidebar.docsSidebar.category.Main Protocols": {
+    "message": "核心协议"
   },
-  "sidebar.tutorialSidebar.category.Getting Started.link.generated-index.description": {
-    "message": "用 5 分钟了解 Docusaurus 最重要的概念。",
-    "description": "The generated-index page description for category 'Getting Started' in sidebar 'tutorialSidebar'"
+  "sidebar.docsSidebar.category.Main Features": {
+    "message": "核心功能"
   },
-  "sidebar.tutorialSidebar.category.Main Protocols": {
-    "message": "核心协议",
-    "description": "The label for category 'Main Protocols' in sidebar 'tutorialSidebar'"
+  "sidebar.docsSidebar.category.OpenAPI": {
+    "message": "开放接口"
+  },
+  "sidebar.docsSidebar.category.Clusters": {
+    "message": "集群"
+  },
+  "sidebar.docsSidebar.category.DevOps": {
+    "message": "运维"
+  },
+  "sidebar.docsSidebar.category.Advanced Guides": {
+    "message": "高级指引"
+  },
+  "sidebar.docsSidebar.category.Others": {
+    "message": "其他"
   }
 }
