@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import {readFileSync, readdirSync} from 'node:fs';
 import {extname, join, relative, sep} from 'node:path';
 
+import {inventoryUrls} from './url-inventory.mjs';
+
 const root = join(import.meta.dirname, '..');
 const buildDir = join(root, 'build');
-const inventoryDir = join(root, '..', '..', 'references', 'url-inventory');
 const locales = ['en-us', 'zh-cn'];
 const versions = ['v4', 'v5', 'v6', 'v7', 'v8'];
 
@@ -60,10 +61,7 @@ function routeForHtml(path) {
 
 function inventoryPaths(name) {
   return new Set(
-    readFileSync(join(inventoryDir, `${name}.txt`), 'utf8')
-      .trim()
-      .split('\n')
-      .map((url) => new URL(url).pathname.replace(/\/$/u, '') || '/'),
+    inventoryUrls(name).map((url) => new URL(url).pathname.replace(/\/$/u, '') || '/'),
   );
 }
 
