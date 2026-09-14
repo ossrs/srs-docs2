@@ -56,7 +56,7 @@ function compatibilityRedirect(pathname) {
     /^\/lts\/(about|contact|faq|guide|how-to-file-pr|license|product|security-advisories|cloud)(?:\/.*)?$/,
   );
   if (localeLessPage) return `/lts/en-us/${localeLessPage[1]}`;
-  if (pathname.startsWith('/oryx')) return '/lts/en-us/docs/v6/doc/getting-started-oryx';
+  if (pathname.startsWith('/oryx')) return '/lts/en-us/docs/v8/doc/getting-started-oryx';
 
   return undefined;
 }

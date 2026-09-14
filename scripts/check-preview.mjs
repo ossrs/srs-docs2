@@ -43,6 +43,7 @@ await expectRedirect('/lts/', 302, '/lts/en-us/');
 await expectRedirect('/lts/docs/v6/doc/introduction', 302, '/lts/en-us/docs/v6/doc/introduction');
 await expectRedirect('/lts/blog', 302, '/lts/en-us/blog');
 await expectRedirect('/lts/security-advisories', 302, '/lts/en-us/security-advisories');
+await expectRedirect('/oryx', 302, '/lts/en-us/docs/v8/doc/getting-started-oryx');
 await expectRedirect(
   '/lts/en-us/zh-cn/docs/v6/doc/introduction',
   302,
@@ -119,5 +120,5 @@ const missing = await request('/lts/en-us/does-not-exist');
 assert.equal(missing.status, 404, 'A missing route must not masquerade as a successful page');
 
 console.log(
-  `Preview check passed: 9 redirects, ${pagePaths.length} legacy page routes, 10 Introduction variants, representative home/blog/security content, and a deliberate 404.`,
+  `Preview check passed: 10 redirects, ${pagePaths.length} legacy page routes, 10 Introduction variants, representative home/blog/security content, and a deliberate 404.`,
 );
