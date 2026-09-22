@@ -114,6 +114,10 @@ vhost rtc.vhost.srs.com {
         # Whether support NACK.
         # default: on
         nack on;
+        # Whether to prefer RFC 4588 RTX when answering a NACK. This is a preference, not a
+        # requirement: SRS never forces RTX on a peer that did not offer it. Requires nack on.
+        # default: off
+        nack_prefer_rtx off;
         # Whether support TWCC.
         # default: on
         twcc on;
@@ -149,6 +153,7 @@ vhost rtc.vhost.srs.com {
 * `rtc.rtc_to_rtmp`：是否开启RTC转RTMP。
 * `rtc.stun_timeout`：会话超时时间，单位秒。
 * `rtc.nack`：是否开启NACK的支持，即丢包重传，默认on。
+* `rtc.nack_prefer_rtx`：对端支持时，是否优先使用RFC 4588 RTX重传，默认off。详细参考[Config: NACK and RTX](./webrtc.md#config-nack-and-rtx)
 * `rtc.twcc`：是否开启TWCC的支持，即拥塞控制的反馈机制，默认on。
 * `rtc.dtls_role`：DTLS角色，active就是DTLS Client(主动发起)，passive是DTLS Server(被动接受)。
 
@@ -224,6 +229,35 @@ docker run --rm --env CANDIDATE=$CANDIDATE \
 
 > Note：Docker的详细用法参考[srs-docker](https://github.com/ossrs/dev-docker/tree/v4#usage)，
 > 镜像地址和可用的版本参考[这里](https://hub.docker.com/r/ossrs/srs/tags)或[这里](https://cr.console.aliyun.com/repository/cn-hangzhou/ossrs/srs/images)。
+
+## Config NACK and RTX
+
+当出现丢包时，接收端会通过RTCP NACK请求重传，发送端再将丢失的包重新发出。重传有两种方式：
+
+* **普通重传(Plain retransmission)**：直接重发原始的包，使用相同的SSRC和相同的序列号(Sequence Number)，
+  接收端无法区分它和原始包。
+* **RFC 4588 RTX**：将丢失的包封装到一个新的包中，使用独立的RTX SSRC，有自己的序列号和Payload Type，
+  并携带原始包的序列号，因此接收端可以区分重传包和原始包。
+
+SRS支持这两种方式，会话的两个方向都支持。每个vhost可以配置偏好，决定当对端两种方式都支持时选择哪一种：
+
+```
+vhost rtc.vhost.srs.com {
+    rtc {
+        nack on;
+        # Whether to prefer RFC 4588 RTX when answering a NACK. This is a preference, not a
+        # requirement: SRS never forces RTX on a peer that did not offer it.
+        # default: off
+        nack_prefer_rtx off;
+    }
+}
+```
+
+配置`nack_prefer_rtx on`时，如果对端在SDP中提供了`rtx`，SRS就使用RTX重传；如果对端没有提供，则使用普通重传。
+配置`nack_prefer_rtx off`时，所有对端都使用普通重传，因此可以用同一个客户端测试降级的情况。
+只有视频会使用RTX，浏览器不会为音频提供`rtx`。
+
+当协商使用RTX时，SDP answer中会携带`rtx`的Payload及其FID分组，SRS会在RTX SSRC上重传丢失的包。
 
 ## Stream URL
 
