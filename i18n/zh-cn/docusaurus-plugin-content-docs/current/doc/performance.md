@@ -137,7 +137,7 @@ SRS5+内置和默认支持[ASAN](https://github.com/google/sanitizers/wiki/Addre
 和 [detect_leaks](https://github.com/google/sanitizers/wiki/SanitizerCommonFlags) 的详细说明:
 
 ```bash
-ASAN_OPTIONS=halt_on_error=1:detect_leaks=1 ./objs/srs -c conf/console.conf
+env ASAN_OPTIONS=halt_on_error=1:detect_leaks=1 SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 ```
 
 ASAN检查内存问题很准确，推荐开启。
@@ -154,7 +154,7 @@ to your application or manually preload it with LD_PRELOAD.
 你应该preload ASAN库：
 
 ```bash
-LD_PRELOAD=$(find /usr -name libasan.so.5 2>/dev/null) ./objs/srs -c conf/console.conf
+env LD_PRELOAD=$(find /usr -name libasan.so.5 2>/dev/null) SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 ```
 
 > Note: 一般而言，libasan.so 的路径是 `/usr/lib64/libasan.so.5`
@@ -176,7 +176,7 @@ extern "C" const char *__asan_default_options() {
 尽管这样，你可以覆盖这些选项，比如开启内存泄露检测等：
 
 ```bash
-ASAN_OPTIONS=halt_on_error=1:detect_leaks=1:alloc_dealloc_mismatch=1 ./objs/srs -c conf/console.conf
+env ASAN_OPTIONS=halt_on_error=1:detect_leaks=1:alloc_dealloc_mismatch=1 SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 ```
 
 请注意，`ASAN_OPTIONS` 会在 `main()` 函数之前加载，因此可以在 shell 中设置，但不能在 `main()` 函数中设置。
@@ -191,7 +191,7 @@ Usage:
 ./configure --gprof=on && make
 
 # Start SRS with GPROF
-./objs/srs -c conf/console.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 
 # Or CTRL+C to stop GPROF
 killall -2 srs
@@ -215,7 +215,7 @@ Usage:
 ./configure --gperf=on --gcp=on && make
 
 # Start SRS with GCP
-./objs/srs -c conf/console.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 
 # Or CTRL+C to stop GCP
 killall -2 srs
@@ -248,7 +248,7 @@ Usage:
 ./configure --gperf=on --gmd=on && make
 
 # Start SRS with GMD.
-env TCMALLOC_PAGE_FENCE=1 ./objs/srs -c conf/console.conf
+env TCMALLOC_PAGE_FENCE=1 SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 ```
 
 > Note: 用法可以参考[heap-defense](https://github.com/ossrs/srs/tree/4.0release/trunk/research/gperftools/heap-defense)。
@@ -266,7 +266,7 @@ Usage:
 ./configure --gperf=on --gmc=on && make
 
 # Start SRS with GMC
-env PPROF_PATH=./objs/pprof HEAPCHECK=normal ./objs/srs -c conf/console.conf 2>gmc.log 
+env PPROF_PATH=./objs/pprof HEAPCHECK=normal SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e 2>gmc.log
 
 # Or CTRL+C to stop gmc
 killall -2 srs
@@ -287,7 +287,7 @@ Usage:
 ./configure --gperf=on --gmp=on && make
 
 # Start SRS with GMP
-./objs/srs -c conf/console.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 ./objs/srs -e
 
 # Or CTRL+C to stop gmp
 killall -2 srs 
@@ -307,7 +307,7 @@ VALGRIND是大名鼎鼎的内存分析工具，SRS3之后支持了。
 SRS3之前，因为使用了ST，需要给ST打PATCH才能用。
 
 ```
-valgrind --leak-check=full --show-leak-kinds=all ./objs/srs -c conf/console.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 valgrind --leak-check=full --show-leak-kinds=all ./objs/srs -e
 ```
 
 > Remark: SRS3之前的版本，可以手动给ST打PATCH支持VALGRIND，参考[state-threads](https://github.com/ossrs/state-threads#usage)，详细的信息可以参考[ST#2](https://github.com/ossrs/state-threads/issues/2)。
@@ -320,7 +320,7 @@ valgrind --leak-check=full --show-leak-kinds=all ./objs/srs -c conf/console.conf
 这样可以避开全局和静态变量，也可以不用退出程序就可以实现检测。操作步骤如下：
 
 1. 编译SRS支持valgrind：`./configure --valgrind=on && make`
-1. 启动SRS，开启内存泄露的检测：`valgrind --leak-check=full --show-leak-kinds=all ./objs/srs -c conf/console.conf`
+1. 启动SRS，开启内存泄露的检测：`env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=1985 valgrind --leak-check=full --show-leak-kinds=all ./objs/srs -e`
 1. 触发内存检测，使用curl访问API，形成校准的数据，依然有大量误报，但可以忽略这些数据：`curl http://127.0.0.1:1985/api/v1/valgrind?check=added`
 1. 多尝试几次内存检测，直到没有新增的泄露，包括possibly和reachable。
 1. 压测，或者针对怀疑泄露的功能测试，比如RTMP推流：`ffmpeg -re -i doc/source.flv -c copy -f flv rtmp://127.0.0.1/live/livestream`
@@ -454,7 +454,7 @@ done
 然后将SRS所有线程，绑定到CPU0之外的CPU：
 
 ```bash
-taskset -a -p 0xfe $(cat objs/srs.pid)
+taskset -a -p 0xfe $(pidof srs)
 ```
 
 可以看到，软中断默认分配方式占用较多CPU，将软中断集中在CPU0，降低20%左右CPU。

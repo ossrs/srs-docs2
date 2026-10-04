@@ -26,8 +26,9 @@ HTTP-FLV的兼容性很好，除了iOS原生浏览器不支持，其他平台和
 SRS支持HTTP-FLV分发，可以用[docker](./getting-started.md)或者[从源码编译](./getting-started-build.md):
 
 ```bash
-docker run --rm -it -p 1935:1935 -p 8080:8080 registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  ./objs/srs -c conf/http.flv.live.conf
+docker run --rm -it -p 1935:1935 -p 8080:8080 \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_SERVER_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  ossrs/srs:8 ./objs/srs -e
 ```
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：

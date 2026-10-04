@@ -22,7 +22,12 @@ hide_table_of_contents: false
 首先，运行SRS，在配置中启用HTTP回调：
 
 ```bash
-./objs/srs -c conf/http.hooks.callback.conf
+env SRS_RTMP_LISTEN=1935 SRS_VHOST_HTTP_HOOKS_ENABLED=on \
+    SRS_VHOST_HTTP_HOOKS_ON_PUBLISH=http://127.0.0.1:8085/api/v1/streams \
+    SRS_VHOST_HTTP_HOOKS_ON_UNPUBLISH=http://127.0.0.1:8085/api/v1/streams \
+    SRS_VHOST_HTTP_HOOKS_ON_PLAY=http://127.0.0.1:8085/api/v1/sessions \
+    SRS_VHOST_HTTP_HOOKS_ON_STOP=http://127.0.0.1:8085/api/v1/sessions \
+    ./objs/srs -e
 ```
 
 启动演示HTTP回调服务器，这是您的业务服务器：

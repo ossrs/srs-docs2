@@ -55,8 +55,10 @@ FFmpeg --RTMP(h.265)---> SRS ----RTMP/FLV/TS/HLS/WebRTC(h.265)--> Chrome/Safari
 请确保您的SRS版本为`6.0.4+`，并使用h265构建：
 
 ```bash
-docker run --rm -it -p 1935:1935 -p 8080:8080 registry.cn-hangzhou.aliyuncs.com/ossrs/srs:6 \
-  ./objs/srs -c conf/hevc.flv.conf
+docker run --rm -it -p 1935:1935 -p 8080:8080 \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_VHOST_HTTP_REMUX_ENABLED=on --env SRS_VHOST_HLS_ENABLED=on \
+  ossrs/srs:8 ./objs/srs -e
 ```
 
 > Note：除了环境变量，您还可以使用`conf/hevc.flv.conf`或`conf/hevc.ts.conf`配置文件。

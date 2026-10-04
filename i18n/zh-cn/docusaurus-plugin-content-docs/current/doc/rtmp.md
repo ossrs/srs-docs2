@@ -26,8 +26,8 @@ SRS和OBS已经支持了基于Enhanced RTMP的[HEVC](https://github.com/veovera/
 SRS内置RTMP的支持，可以用[docker](./getting-started.md)或者[从源码编译](./getting-started-build.md):
 
 ```bash
-docker run --rm -it -p 1935:1935 registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  ./objs/srs -c conf/rtmp.conf
+docker run --rm -it -p 1935:1935 --env SRS_RTMP_LISTEN=1935 ossrs/srs:8 \
+  ./objs/srs -e
 ```
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：
@@ -50,7 +50,7 @@ RTMP协议相关配置如下：
 # the rtmp listen ports, split by space, each listen entry is <[ip:]port>
 # for example, 192.168.1.100:1935 10.10.10.100:1935
 # where the ip is optional, default to 0.0.0.0, that is 1935 equals to 0.0.0.0:1935
-# Overwrite by env SRS_LISTEN
+# Overwrite by env SRS_RTMP_LISTEN
 listen 1935;
 # the default chunk size is 128, max is 65536,
 # some client does not support chunk size change,
@@ -265,7 +265,8 @@ SRS（v7.0.56+）支持RTMPS服务器功能，允许推流端和播放器使用�
 要启用RTMPS，您需要使用SSL证书配置SRS并运行RTMPS支持：
 
 ```bash
-./objs/srs -c conf/rtmps.conf
+env SRS_RTMP_LISTEN=1935 SRS_RTMPS_ENABLED=on SRS_RTMPS_LISTEN=1443 \
+  ./objs/srs -e
 ```
 
 使用[FFmpeg](https://ffmpeg.org/download.html)推送RTMPS流：
@@ -287,7 +288,7 @@ rtmp {
     # the rtmp listen ports, split by space, each listen entry is <[ip:]port>
     # for example, 192.168.1.100:1935 10.10.10.100:1935
     # where the ip is optional, default to 0.0.0.0, that is 1935 equals to 0.0.0.0:1935
-    # Overwrite by env SRS_LISTEN
+    # Overwrite by env SRS_RTMP_LISTEN
     listen 1935;
     # the default chunk size is 128, max is 65536,
     # some client does not support chunk size change,

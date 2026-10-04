@@ -213,18 +213,24 @@ CANDIDATE="192.168.3.10"
 设置环境变量，然后启动SRS：
 
 ```bash
-env CANDIDATE="192.168.3.10" \
-  ./objs/srs -c conf/rtc.conf
+env SRS_RTC_SERVER_CANDIDATE="192.168.3.10" \
+  SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_SERVER_ENABLED=on \
+  SRS_RTC_SERVER_ENABLED=on SRS_VHOST_RTC_ENABLED=on SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  ./objs/srs -e
 ```
+
+或者使用配置文件，配置`candidate $CANDIDATE;`：`env CANDIDATE="192.168.3.10" ./objs/srs -c conf/rtc.conf`
 
 用Docker方式运行SRS，设置环境变量的方法：
 
 ```bash
 export CANDIDATE="192.168.3.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtc.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note：Docker的详细用法参考[srs-docker](https://github.com/ossrs/dev-docker/tree/v4#usage)，
@@ -330,11 +336,13 @@ SRS支持WHIP和WHEP协议。安装好SRS后，可以直接点击下面的地址
 SRS支持为WHIP和WHEP信令可选地开启Bearer鉴权，RTC默认关闭该功能。开启`http_api.auth`，将其类型设置为`bearer`，配置token，并显式开启RTC的Bearer鉴权：
 
 ```bash
-env SRS_HTTP_API_AUTH_ENABLED=on \
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_SERVER_ENABLED=on \
+    SRS_RTC_SERVER_ENABLED=on SRS_VHOST_RTC_ENABLED=on SRS_VHOST_HTTP_REMUX_ENABLED=on \
+    SRS_HTTP_API_AUTH_ENABLED=on \
     SRS_HTTP_API_AUTH_TYPE=bearer \
     SRS_HTTP_API_AUTH_TOKEN=srs-api-token \
     SRS_HTTP_API_AUTH_RTC_BEARER_ENABLED=on \
-    ./objs/srs -c conf/rtc.conf
+    ./objs/srs -e
 ```
 
 WHIP或WHEP客户端必须在HTTP请求中携带该token：
@@ -411,14 +419,17 @@ Success
 
 WebRTC可以作为直播的一个播放器，播放直播流，延迟比RTMP还要低，更能抗网络抖动。
 
-本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，例如：
+本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，开启RTMP转WebRTC，或者使用配置文件`conf/rtmp2rtc.conf`，例如：
 
 ```bash
 export CANDIDATE="192.168.1.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  --env SRS_VHOST_RTC_RTMP_TO_RTC=on --env SRS_VHOST_RTC_RTC_TO_RTMP=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtmp2rtc.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
@@ -451,14 +462,16 @@ docker run --rm -it registry.cn-hangzhou.aliyuncs.com/ossrs/srs:encoder ffmpeg -
 
 WebRTC本身是可以推流和拉流的，全链路延迟都很低。
 
-本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，例如：
+本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，开启WebRTC，或者使用配置文件`conf/rtc.conf`，例如：
 
 ```bash
 export CANDIDATE="192.168.1.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtc.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
@@ -476,14 +489,17 @@ docker run --rm --env CANDIDATE=$CANDIDATE \
 
 WebRTC推流，可以转成RTMP流播放，SRS只会对音频转码（Opus转AAC），因此要求视频是H.264编码。
 
-本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，例如：
+本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，开启WebRTC转RTMP，或者使用配置文件`conf/rtc2rtmp.conf`，例如：
 
 ```bash
 export CANDIDATE="192.168.1.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  --env SRS_VHOST_RTC_RTMP_TO_RTC=on --env SRS_VHOST_RTC_RTC_TO_RTMP=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtc2rtmp.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
@@ -559,14 +575,16 @@ SRS早就具备了SFU的能力，比如一对一通话、[多人通话](./webrtc
 
 > 下面以Docker中运行DEMO为例子，若希望从代码编译，请设置好对应的环境变量和启动命令。
 
-本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，例如：
+本机启动SRS(参考[usage](https://github.com/ossrs/srs/tree/4.0release#usage))，开启WebRTC，或者使用配置文件`conf/rtc.conf`，例如：
 
 ```bash
 export CANDIDATE="192.168.1.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtc.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
@@ -624,10 +642,13 @@ SRS支持多人通话的SFU能力，请参考[一对一通话](./webrtc.md#sfu-o
 
 ```bash
 export CANDIDATE="192.168.1.10"
-docker run --rm --env CANDIDATE=$CANDIDATE \
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  --env SRS_VHOST_RTC_RTMP_TO_RTC=on --env SRS_VHOST_RTC_RTC_TO_RTMP=on \
   -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-  objs/srs -c conf/rtc2rtmp.conf
+  ossrs/srs:8 \
+  objs/srs -e
 ```
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。

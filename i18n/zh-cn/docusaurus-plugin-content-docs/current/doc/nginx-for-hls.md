@@ -108,7 +108,9 @@ docker run --rm -it --network=host --name sb ossrs/srs:sb \
 首先，启动SRS源站：
 
 ```bash
-./objs/srs -c conf/hls.origin.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_SERVER_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+  SRS_VHOST_HLS_HLS_CTX=off SRS_VHOST_HLS_HLS_TS_CTX=off \
+  ./objs/srs -e
 ```
 
 然后，启动NGINX源站：

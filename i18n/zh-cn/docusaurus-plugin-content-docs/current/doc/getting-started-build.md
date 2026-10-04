@@ -30,27 +30,15 @@ make
 启动服务器：
 
 ```
-./objs/srs -c conf/srs.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_SERVER_ENABLED=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    ./objs/srs -e
 ```
 
-检查SRS是否成功启动，可以打开 [http://localhost:8080/](http://localhost:8080/) ，或者执行命令：
+检查SRS是否成功启动，可以打开 [http://localhost:8080/](http://localhost:8080/) ，或者访问HTTP API，日志会直接输出到控制台：
 
 ```
-# 查看SRS的状态
-./etc/init.d/srs status
-
-# 或者看SRS的日志
-tail -n 30 -f ./objs/srs.log
-```
-
-例如，下面的命令显示SRS正在运行：
-
-```
-MB0:trunk $ ./etc/init.d/srs status
-SRS(pid 90408) is running.                                 [  OK  ]
-
-MB0:trunk $ tail -n 30 -f ./objs/srs.log
-[2021-08-13 10:30:36.634][Trace][90408][12c97232] Hybrid cpu=0.00%,0MB, cid=1,1, timer=61,0,0, clock=0,22,25,0,0,0,0,1,0
+curl http://localhost:1985/api/v1/versions
 ```
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：
@@ -89,31 +77,20 @@ make
 
 ```
 CANDIDATE="192.168.1.10"
-./objs/srs -c conf/srs.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_SERVER_ENABLED=on \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_CANDIDATE=$CANDIDATE SRS_VHOST_RTC_ENABLED=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    ./objs/srs -e
 ```
 
 > Note: 请将IP换成你的SRS的IP地址。
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
 
-检查SRS是否成功启动，可以打开 [http://localhost:8080/](http://localhost:8080/) ，或者执行命令：
+检查SRS是否成功启动，可以打开 [http://localhost:8080/](http://localhost:8080/) ，或者访问HTTP API，日志会直接输出到控制台：
 
 ```
-# 查看SRS的状态
-./etc/init.d/srs status
-
-# 或者看SRS的日志
-tail -n 30 -f ./objs/srs.log
-```
-
-例如，下面的命令显示SRS正在运行：
-
-```
-MB0:trunk $ ./etc/init.d/srs status
-SRS(pid 90408) is running.                                 [  OK  ]
-
-MB0:trunk $ tail -n 30 -f ./objs/srs.log
-[2021-08-13 10:30:36.634][Trace][90408][12c97232] Hybrid cpu=0.00%,0MB, cid=1,1, timer=61,0,0, clock=0,22,25,0,0,0,0,1,0
+curl http://localhost:1985/api/v1/versions
 ```
 
 本机推拉流（即浏览器和SRS都在本机），使用WebRTC推流到SRS：[WebRTC: Publish](http://localhost:8080/players/rtc_publisher.html?autostart=true&stream=livestream&port=8080&schema=http)
@@ -146,14 +123,18 @@ make
 
 ```
 CANDIDATE="192.168.1.10"
-./objs/srs -c conf/rtmp2rtc.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_SERVER_ENABLED=on \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_CANDIDATE=$CANDIDATE SRS_VHOST_RTC_ENABLED=on \
+    SRS_VHOST_RTC_RTMP_TO_RTC=on SRS_VHOST_RTC_RTC_TO_RTMP=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    ./objs/srs -e
 ```
 
 > Note: 请将IP换成你的SRS的IP地址。
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
 
-> Note: 注意如果RTMP转WebRTC流播放，必须使用配置文件[`rtmp2rtc.conf`](https://github.com/ossrs/srs/issues/2728#rtmp2rtc-cn-guide)
+> Note: 注意如果RTMP转WebRTC流播放，也可以使用配置文件[`rtmp2rtc.conf`](https://github.com/ossrs/srs/issues/2728#rtmp2rtc-cn-guide)
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：
 
@@ -191,7 +172,11 @@ make
 
 ```
 CANDIDATE="192.168.1.10"
-./objs/srs -c conf/https.rtc.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_HTTPS_ENABLED=on \
+    SRS_HTTP_SERVER_ENABLED=on SRS_HTTP_SERVER_HTTPS_ENABLED=on \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_CANDIDATE=$CANDIDATE SRS_VHOST_RTC_ENABLED=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on \
+    ./objs/srs -e
 ``` 
 
 > Note: 请将IP换成你的SRS的IP地址。

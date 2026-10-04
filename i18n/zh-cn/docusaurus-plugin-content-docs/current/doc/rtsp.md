@@ -21,7 +21,8 @@ SRS最早在2.0版本就已经支持RTSP协议，但只有推流（ANNOUNCE → 
 
 ```bash
 cd srs/trunk && ./configure --rtsp=on && make
-./objs/srs -c conf/rtsp.conf
+env SRS_RTMP_LISTEN=1935 SRS_RTSP_SERVER_ENABLED=on SRS_RTSP_SERVER_LISTEN=8554 \
+  SRS_VHOST_RTSP_ENABLED=on ./objs/srs -e
 ```
 > 编译时必须开启`--rtsp=on`（默认关闭）。
 

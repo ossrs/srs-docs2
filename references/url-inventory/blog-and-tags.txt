@@ -13,6 +13,7 @@ https://ossrs.io/lts/en-us/blog/Stream-IP-Camera-Events
 https://ossrs.io/lts/en-us/blog/Virtual-Live-Events
 https://ossrs.io/lts/en-us/blog/WebRTC-Live
 https://ossrs.io/lts/en-us/blog/WordPress-Plugin
+https://ossrs.io/lts/en-us/blog/ai-autopilot
 https://ossrs.io/lts/en-us/blog/archive
 https://ossrs.io/lts/en-us/blog/browser-voice-driven-gpt
 https://ossrs.io/lts/en-us/blog/coroutine-native-srt
@@ -39,6 +40,7 @@ https://ossrs.io/lts/en-us/blog/tags/api
 https://ossrs.io/lts/en-us/blog/tags/architecture
 https://ossrs.io/lts/en-us/blog/tags/asr
 https://ossrs.io/lts/en-us/blog/tags/authentication
+https://ossrs.io/lts/en-us/blog/tags/autopilot
 https://ossrs.io/lts/en-us/blog/tags/blog
 https://ossrs.io/lts/en-us/blog/tags/bt
 https://ossrs.io/lts/en-us/blog/tags/chat
@@ -87,6 +89,7 @@ https://ossrs.io/lts/en-us/blog/tags/srt
 https://ossrs.io/lts/en-us/blog/tags/streaming
 https://ossrs.io/lts/en-us/blog/tags/subtitles
 https://ossrs.io/lts/en-us/blog/tags/tcp
+https://ossrs.io/lts/en-us/blog/tags/testing
 https://ossrs.io/lts/en-us/blog/tags/transcode
 https://ossrs.io/lts/en-us/blog/tags/transcription
 https://ossrs.io/lts/en-us/blog/tags/translating
@@ -120,6 +123,7 @@ https://ossrs.io/lts/zh-cn/blog/Stream-IP-Camera-Events
 https://ossrs.io/lts/zh-cn/blog/Virtual-Live-Events
 https://ossrs.io/lts/zh-cn/blog/WebRTC-Live
 https://ossrs.io/lts/zh-cn/blog/WordPress-Plugin
+https://ossrs.io/lts/zh-cn/blog/ai-autopilot
 https://ossrs.io/lts/zh-cn/blog/archive
 https://ossrs.io/lts/zh-cn/blog/browser-voice-driven-gpt
 https://ossrs.io/lts/zh-cn/blog/coroutine-native-srt
@@ -146,6 +150,7 @@ https://ossrs.io/lts/zh-cn/blog/tags/api
 https://ossrs.io/lts/zh-cn/blog/tags/architecture
 https://ossrs.io/lts/zh-cn/blog/tags/asr
 https://ossrs.io/lts/zh-cn/blog/tags/authentication
+https://ossrs.io/lts/zh-cn/blog/tags/autopilot
 https://ossrs.io/lts/zh-cn/blog/tags/blog
 https://ossrs.io/lts/zh-cn/blog/tags/bt
 https://ossrs.io/lts/zh-cn/blog/tags/chat
@@ -195,6 +200,7 @@ https://ossrs.io/lts/zh-cn/blog/tags/srt
 https://ossrs.io/lts/zh-cn/blog/tags/streaming
 https://ossrs.io/lts/zh-cn/blog/tags/subtitles
 https://ossrs.io/lts/zh-cn/blog/tags/tcp
+https://ossrs.io/lts/zh-cn/blog/tags/testing
 https://ossrs.io/lts/zh-cn/blog/tags/transcode
 https://ossrs.io/lts/zh-cn/blog/tags/transcription
 https://ossrs.io/lts/zh-cn/blog/tags/translating

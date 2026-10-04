@@ -69,12 +69,48 @@ env PROXY_RTMP_SERVER=1935 PROXY_HTTP_SERVER=8080 \
 
 > Note: 这里我们使用内存负载均衡器，如果您想运行多个proxy server，可以切换到 `redis`。
 
-然后，部署三个源服务器，通过端口 `12025` 连接到proxy server：
+然后，部署三个源服务器，每个服务器在单独的终端中运行，通过端口 `12025` 连接到proxy server：
 
 ```bash
-./objs/srs -c conf/origin1-for-proxy.conf
-./objs/srs -c conf/origin2-for-proxy.conf
-./objs/srs -c conf/origin3-for-proxy.conf
+env SRS_RTMP_LISTEN=19351 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=19851 \
+    SRS_HTTP_SERVER_ENABLED=on SRS_HTTP_SERVER_LISTEN=8081 \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_LISTEN=8001 \
+    SRS_SRT_SERVER_ENABLED=on SRS_SRT_SERVER_LISTEN=10081 \
+    SRS_SRT_SERVER_TSBPDMODE=off SRS_SRT_SERVER_TLPKTDROP=off \
+    SRS_HEARTBEAT_ENABLED=on SRS_HEARTBEAT_INTERVAL=9 SRS_HEARTBEAT_DEVICE_ID=origin1 \
+    SRS_HEARTBEAT_URL=http://127.0.0.1:12025/api/v1/srs/register SRS_HEARTBEAT_PORTS=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    SRS_VHOST_RTC_ENABLED=on SRS_VHOST_RTC_RTMP_TO_RTC=on SRS_VHOST_RTC_RTC_TO_RTMP=on \
+    SRS_VHOST_SRT_ENABLED=on SRS_VHOST_SRT_SRT_TO_RTMP=on \
+    ./objs/srs -e
+```
+
+```bash
+env SRS_RTMP_LISTEN=19352 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=19853 \
+    SRS_HTTP_SERVER_ENABLED=on SRS_HTTP_SERVER_LISTEN=8082 \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_LISTEN=8002 \
+    SRS_SRT_SERVER_ENABLED=on SRS_SRT_SERVER_LISTEN=10082 \
+    SRS_SRT_SERVER_TSBPDMODE=off SRS_SRT_SERVER_TLPKTDROP=off \
+    SRS_HEARTBEAT_ENABLED=on SRS_HEARTBEAT_INTERVAL=9 SRS_HEARTBEAT_DEVICE_ID=origin2 \
+    SRS_HEARTBEAT_URL=http://127.0.0.1:12025/api/v1/srs/register SRS_HEARTBEAT_PORTS=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    SRS_VHOST_RTC_ENABLED=on SRS_VHOST_RTC_RTMP_TO_RTC=on SRS_VHOST_RTC_RTC_TO_RTMP=on \
+    SRS_VHOST_SRT_ENABLED=on SRS_VHOST_SRT_SRT_TO_RTMP=on \
+    ./objs/srs -e
+```
+
+```bash
+env SRS_RTMP_LISTEN=19353 SRS_HTTP_API_ENABLED=on SRS_HTTP_API_LISTEN=19852 \
+    SRS_HTTP_SERVER_ENABLED=on SRS_HTTP_SERVER_LISTEN=8083 \
+    SRS_RTC_SERVER_ENABLED=on SRS_RTC_SERVER_LISTEN=8003 \
+    SRS_SRT_SERVER_ENABLED=on SRS_SRT_SERVER_LISTEN=10083 \
+    SRS_SRT_SERVER_TSBPDMODE=off SRS_SRT_SERVER_TLPKTDROP=off \
+    SRS_HEARTBEAT_ENABLED=on SRS_HEARTBEAT_INTERVAL=9 SRS_HEARTBEAT_DEVICE_ID=origin3 \
+    SRS_HEARTBEAT_URL=http://127.0.0.1:12025/api/v1/srs/register SRS_HEARTBEAT_PORTS=on \
+    SRS_VHOST_HTTP_REMUX_ENABLED=on SRS_VHOST_HLS_ENABLED=on \
+    SRS_VHOST_RTC_ENABLED=on SRS_VHOST_RTC_RTMP_TO_RTC=on SRS_VHOST_RTC_RTC_TO_RTMP=on \
+    SRS_VHOST_SRT_ENABLED=on SRS_VHOST_SRT_SRT_TO_RTMP=on \
+    ./objs/srs -e
 ```
 
 > Note: 源服务器是独立的，因此建议将它们作为部署（Deployments）在Kubernetes（K8s）中部署。
@@ -119,13 +155,7 @@ env PROXY_RTMP_SERVER=1935 PROXY_HTTP_SERVER=8080 \
 
 > Note: 这里我们使用内存负载均衡器，如果您想运行多个proxy server，可以切换到 `redis`。
 
-然后，部署三个源服务器，通过端口 `12025` 连接到proxy server：
-
-```bash
-./objs/srs -c conf/origin1-for-proxy.conf
-./objs/srs -c conf/origin2-for-proxy.conf
-./objs/srs -c conf/origin3-for-proxy.conf
-```
+然后，部署[RTMP Origin Cluster](#rtmp-origin-cluster)中的三个源服务器，通过端口 `12025` 连接到proxy server。
 
 > Note: 源服务器是独立的，因此建议将它们作为部署（Deployments）在Kubernetes（K8s）中部署。
 
@@ -165,13 +195,7 @@ env PROXY_RTMP_SERVER=1935 PROXY_HTTP_SERVER=8080 \
 
 > Note: 这里我们使用内存负载均衡器，如果您想运行多个proxy server，可以切换到 `redis`。
 
-然后，部署三个源服务器，通过端口 `12025` 连接到proxy server：
-
-```bash
-./objs/srs -c conf/origin1-for-proxy.conf
-./objs/srs -c conf/origin2-for-proxy.conf
-./objs/srs -c conf/origin3-for-proxy.conf
-```
+然后，部署[RTMP Origin Cluster](#rtmp-origin-cluster)中的三个源服务器，通过端口 `12025` 连接到proxy server。
 
 > Note: 源服务器是独立的，因此建议将它们作为部署（Deployments）在Kubernetes（K8s）中部署。
 

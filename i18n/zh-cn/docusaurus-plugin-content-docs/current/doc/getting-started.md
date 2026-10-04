@@ -77,16 +77,19 @@ SRS支持直播转WebRTC，推直播流，使用WebRTC观看。
 
 ```bash
 CANDIDATE="192.168.1.10"
-docker run --rm -it -p 1935:1935 -p 1985:1985 -p 8080:8080 \
-    --env CANDIDATE=$CANDIDATE -p 8000:8000/udp \
-    registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 ./objs/srs -c conf/rtmp2rtc.conf
+docker run --rm -it -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 8000:8000/udp \
+    --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+    --env SRS_RTC_SERVER_ENABLED=on --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+    --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_RTC_RTMP_TO_RTC=on --env SRS_VHOST_RTC_RTC_TO_RTMP=on \
+    --env SRS_VHOST_HTTP_REMUX_ENABLED=on --env SRS_VHOST_HLS_ENABLED=on \
+    ossrs/srs:8 ./objs/srs -e
 ```
 
 > Note: 请将IP换成你的SRS的IP地址。
 
 > Note: 请将CANDIDATE设置为服务器的外网地址，详细请阅读[WebRTC: CANDIDATE](./webrtc.md#config-candidate)。
 
-> Note: 注意如果RTMP转WebRTC流播放，必须使用配置文件[`rtmp2rtc.conf`](https://github.com/ossrs/srs/issues/2728#rtmp2rtc-cn-guide)
+> Note: 注意如果RTMP转WebRTC流播放，也可以使用配置文件[`rtmp2rtc.conf`](https://github.com/ossrs/srs/issues/2728#rtmp2rtc-cn-guide)
 
 使用FFmpeg的Docker推流到本机：
 
@@ -119,9 +122,12 @@ ffmpeg -re -i ./doc/source.flv -c copy -f flv rtmp://localhost/live/livestream
 
 ```bash
 CANDIDATE="192.168.1.10"
-docker run --rm -it -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 1990:1990 -p 8088:8088 \
-    --env CANDIDATE=$CANDIDATE -p 8000:8000/udp \
-    registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 ./objs/srs -c conf/https.docker.conf
+docker run --rm -it -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 1990:1990 -p 8088:8088 -p 8000:8000/udp \
+    --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_API_HTTPS_ENABLED=on \
+    --env SRS_HTTP_SERVER_ENABLED=on --env SRS_HTTP_SERVER_HTTPS_ENABLED=on \
+    --env SRS_RTC_SERVER_ENABLED=on --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE --env SRS_VHOST_RTC_ENABLED=on \
+    --env SRS_VHOST_HTTP_REMUX_ENABLED=on --env SRS_VHOST_HLS_ENABLED=on \
+    ossrs/srs:8 ./objs/srs -e
 ```
 
 > Note: 请将IP换成你的SRS的IP地址。
@@ -150,7 +156,11 @@ SRS支持SRT推直播流，使用SRT或其他协议观看。
 
 ```bash
 docker run --rm -it -p 1935:1935 -p 1985:1985 -p 8080:8080 -p 10080:10080/udp \
-    registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 ./objs/srs -c conf/srt.conf
+    --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+    --env SRS_SRT_SERVER_ENABLED=on --env SRS_VHOST_SRT_ENABLED=on --env SRS_VHOST_SRT_SRT_TO_RTMP=on \
+    --env SRS_SRT_SERVER_LATENCY=0 --env SRS_SRT_SERVER_RECVLATENCY=0 --env SRS_SRT_SERVER_TSBPDMODE=off \
+    --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+    ossrs/srs:8 ./objs/srs -e
 ```
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：

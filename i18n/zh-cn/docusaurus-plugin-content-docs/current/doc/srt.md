@@ -29,8 +29,10 @@ SRS内置SRT的支持，可以用[docker](./getting-started.md)或者[从源码�
 
 ```bash
 docker run --rm -it -p 1935:1935 -p 8080:8080 -p 10080:10080/udp \
-  registry.cn-hangzhou.aliyuncs.com/ossrs/srs:5 \
-    ./objs/srs -c conf/srt.conf
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_SERVER_ENABLED=on --env SRS_VHOST_HTTP_REMUX_ENABLED=on \
+  --env SRS_SRT_SERVER_ENABLED=on --env SRS_VHOST_SRT_ENABLED=on --env SRS_VHOST_SRT_SRT_TO_RTMP=on \
+  --env SRS_SRT_SERVER_LATENCY=0 --env SRS_SRT_SERVER_RECVLATENCY=0 --env SRS_SRT_SERVER_TSBPDMODE=off \
+  ossrs/srs:8 ./objs/srs -e
 ```
 
 使用 [FFmpeg(点击下载)](https://ffmpeg.org/download.html) 或 [OBS(点击下载)](https://obsproject.com/download) 推流：
@@ -601,8 +603,11 @@ SRS提供了一个针对VLC兼容性优化的配置文件`conf/srt.vlc.conf`。�
 你也可以使用环境变量设置默认streamid，这对Docker部署很有用：
 
 ```bash
-env SRS_SRT_SERVER_DEFAULT_STREAMID="#!::r=live/livestream,m=request" \
-    ./objs/srs -c conf/srt.conf
+env SRS_RTMP_LISTEN=1935 SRS_HTTP_SERVER_ENABLED=on SRS_VHOST_HTTP_REMUX_ENABLED=on \
+    SRS_SRT_SERVER_ENABLED=on SRS_VHOST_SRT_ENABLED=on SRS_VHOST_SRT_SRT_TO_RTMP=on \
+    SRS_SRT_SERVER_LATENCY=0 SRS_SRT_SERVER_RECVLATENCY=0 SRS_SRT_SERVER_TSBPDMODE=off \
+    SRS_SRT_SERVER_DEFAULT_STREAMID="#!::r=live/livestream,m=request" \
+    ./objs/srs -e
 ```
 
 下面是一个完整的工作流程示例。首先，使用FFmpeg推流（显式设置streamid为`m=publish`）：
