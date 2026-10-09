@@ -11,7 +11,7 @@ SRS 提供了多种使用 AI 的方式：您可以在 Telegram 或 Discord 中�
 
 ## Claude Code
 
-您可以在本地使用 Claude Code 与 SRS 代码库协作。SRS 内置了预配置的 `.claude` 目录，Claude Code 开箱即用，可以直接获取完整的项目上下文。
+您可以在本地使用 Claude Code 与 SRS 代码库协作。SRS 在 `.claude/skills` 目录中内置了 SRS Skill，Claude Code 开箱即用，可以直接获取完整的项目上下文。
 
 克隆 SRS 代码、相关项目，并启动 Claude Code：
 
@@ -23,11 +23,11 @@ cd srs
 claude
 ```
 
-Claude Code 将自动加载 `srs/.claude` 中的配置，使其深度了解 SRS 代码库，您可以直接提问、调试问题、编写代码等。
+Claude Code 将自动加载 `srs/.claude/skills` 中的 SRS Skill，使其深度了解 SRS 代码库，您可以直接提问、调试问题、编写代码等。
 
 ## Codex
 
-您也可以在本地使用 Codex 与 SRS 代码库协作。SRS 内置了预配置的 `.codex` 目录，Codex 开箱即用。
+您也可以在本地使用 Codex 与 SRS 代码库协作。SRS 在 `.agents/skills` 目录中内置了 SRS Skill，Codex 开箱即用。
 
 克隆 SRS 代码、相关项目，并启动 Codex：
 
@@ -39,11 +39,11 @@ cd srs
 codex
 ```
 
-Codex 将自动加载 `srs/.codex` 中的配置。
+Codex 将自动加载 `srs/.agents/skills` 中的 SRS Skill。
 
 ## Kiro
 
-您也可以在本地使用 Kiro 与 SRS 代码库协作。SRS 内置了预配置的 `.kiro` 目录，Kiro 开箱即用。
+您也可以在本地使用 Kiro 与 SRS 代码库协作。SRS 在 `.kiro/skills` 目录中内置了 SRS Skill，Kiro 开箱即用。
 
 克隆 SRS 代码、相关项目，并启动 Kiro：
 
@@ -55,7 +55,7 @@ cd srs
 kiro-cli
 ```
 
-Kiro 将自动加载 `srs/.kiro` 中的配置。
+Kiro 将自动加载 `srs/.kiro/skills` 中的 SRS Skill。
 
 ## OpenClaw
 
