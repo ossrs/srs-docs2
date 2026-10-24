@@ -23,6 +23,7 @@ https://ossrs.io/lts/en-us/blog/how-to-stream-youtube-using-a-web-browser
 https://ossrs.io/lts/en-us/blog/lets-do-h265-live-streaming
 https://ossrs.io/lts/en-us/blog/live-streams-transcription
 https://ossrs.io/lts/en-us/blog/load-balancing-streaming-servers
+https://ossrs.io/lts/en-us/blog/native-windows
 https://ossrs.io/lts/en-us/blog/obs-whip-internet-service
 https://ossrs.io/lts/en-us/blog/ocr-video-streams
 https://ossrs.io/lts/en-us/blog/page/2
@@ -101,6 +102,7 @@ https://ossrs.io/lts/en-us/blog/tags/virual-live-events
 https://ossrs.io/lts/en-us/blog/tags/voice
 https://ossrs.io/lts/en-us/blog/tags/webrtc
 https://ossrs.io/lts/en-us/blog/tags/whip
+https://ossrs.io/lts/en-us/blog/tags/windows
 https://ossrs.io/lts/en-us/blog/tags/wordpress
 https://ossrs.io/lts/en-us/blog/tags/youtube
 https://ossrs.io/lts/en-us/blog/unlock-the-power-of-hevc-via-rtmp
@@ -133,6 +135,7 @@ https://ossrs.io/lts/zh-cn/blog/how-to-stream-youtube-using-a-web-browser
 https://ossrs.io/lts/zh-cn/blog/lets-do-h265-live-streaming
 https://ossrs.io/lts/zh-cn/blog/live-streams-transcription
 https://ossrs.io/lts/zh-cn/blog/load-balancing-streaming-servers
+https://ossrs.io/lts/zh-cn/blog/native-windows
 https://ossrs.io/lts/zh-cn/blog/obs-whip-internet-service
 https://ossrs.io/lts/zh-cn/blog/ocr-video-streams
 https://ossrs.io/lts/zh-cn/blog/page/2
@@ -212,6 +215,7 @@ https://ossrs.io/lts/zh-cn/blog/tags/virual-live-events
 https://ossrs.io/lts/zh-cn/blog/tags/voice
 https://ossrs.io/lts/zh-cn/blog/tags/webrtc
 https://ossrs.io/lts/zh-cn/blog/tags/whip
+https://ossrs.io/lts/zh-cn/blog/tags/windows
 https://ossrs.io/lts/zh-cn/blog/tags/wordpress
 https://ossrs.io/lts/zh-cn/blog/tags/youtube
 https://ossrs.io/lts/zh-cn/blog/unlock-the-power-of-hevc-via-rtmp

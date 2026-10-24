@@ -53,7 +53,7 @@ for (const [source, translated, count, label] of docTrees) {
 assertPairedMarkdown(
   join(root, 'blog'),
   join(root, 'i18n/zh-cn/docusaurus-plugin-content-blog'),
-  35,
+  36,
   'blog posts',
   {requireChinese: false},
 );
