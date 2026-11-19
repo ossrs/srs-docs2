@@ -167,6 +167,8 @@ For each vhost, the configuration is `rtc` section, for example:
 * `rtc.nack_prefer_rtx`：Whether to prefer RFC 4588 RTX over plain retransmission for a peer that offers it. Please read [Config: NACK and RTX](./webrtc.md#config-nack-and-rtx) for detail.
 * `rtc.twcc`：Whether support TWCC for congestion feedback.
 * `rtc.dtls_role`：The role of dtls when peer is actpass: passive or active.
+* `rtc.dtls_version`：The DTLS version: `auto`, `dtls1.0`, `dtls1.2`, or `dtls1.3` on an OpenSSL 4.1 build. Please read [SPED and DTLS 1.3](./webrtc.md#sped-and-dtls-13) for detail.
+* `rtc.sped`：Whether to run the DTLS handshake inside the ICE checks (SPED) when the client offers it, default off. Please read [SPED and DTLS 1.3](./webrtc.md#sped-and-dtls-13) for detail.
 
 ## Config: Candidate
 
@@ -280,6 +282,177 @@ Only video uses RTX; browsers never offer `rtx` for audio.
 
 When RTX is negotiated, the SDP answer carries the `rtx` payload and its FID group, and SRS resends lost packets on the
 RTX SSRC.
+
+## SPED and DTLS 1.3
+
+Before media flows, a WebRTC session runs its protocols one after another: the WHIP or WHEP offer and answer (1 RTT),
+the ICE check (1 RTT), and the DTLS handshake (2 RTTs on DTLS 1.2). SRS 8.0 has two experimental ways to make this
+faster, both off by default:
+
+* **SPED** (STUN Protocol for Embedding DTLS, [draft-hancke-webrtc-sped-01](https://www.ietf.org/archive/id/draft-hancke-webrtc-sped-01.html))
+  puts the DTLS handshake inside the ICE STUN Binding requests and responses. The client's ClientHello rides in its
+  first check, and SRS's first DTLS flight rides in the response, which saves one RTT. When a handshake packet is lost,
+  the next check, about 50 ms later, carries it again, instead of waiting for the DTLS retransmission timer, which
+  doubles after each loss.
+* **DTLS 1.3** needs one RTT for the handshake instead of two. It needs SRS built with OpenSSL 4.1, and SPED works on it
+  too.
+
+So the setup is 4 RTTs with DTLS 1.2, 3 with SPED or DTLS 1.3, and 2 with both. SPED helps most on long or lossy paths,
+such as mobile networks; on a LAN the RTT it saves is too small to notice.
+
+### Enable SPED
+
+```
+vhost __defaultVhost__ {
+    rtc {
+        enabled on;
+        # Whether to answer a=ice-options:sped when the offer has it, so the DTLS handshake rides inside the
+        # ICE STUN Binding requests and responses (SPED). It saves one RTT.
+        # Overwrite by env SRS_VHOST_RTC_SPED for all vhosts.
+        # default: off
+        sped on;
+    }
+}
+```
+
+Or with Docker:
+
+```bash
+export CANDIDATE="192.168.3.10"
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_RTC_SPED=on \
+  -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
+  ossrs/srs:8 \
+  objs/srs -e
+```
+
+* SRS uses SPED only for a client whose offer has `sped` in `a=ice-options`, and then answers `a=ice-options:sped`.
+  Every other client connects as before, so it is safe to turn on for a vhost with mixed clients.
+* If the client's first check carries no SPED attribute, SRS turns SPED off for the session and the DTLS handshake runs
+  as before.
+* It works for WebRTC over UDP and over [TCP](./webrtc.md#webrtc-over-tcp), for WHIP and WHEP.
+* A value other than `on` or `off` is refused at startup.
+
+### Enable DTLS 1.3
+
+DTLS 1.3 needs OpenSSL 4.1 or newer. The default build, and the `ossrs/srs:8` image, use OpenSSL 1.1.1 and DTLS 1.2, so
+build SRS from source with the bundled OpenSSL 4.1:
+
+```bash
+cd srs/trunk
+./configure --ssl-4=on && make
+```
+
+Then set the version with `dtls_version`, or the env `SRS_VHOST_RTC_DTLS_VERSION`:
+
+```
+vhost __defaultVhost__ {
+    rtc {
+        # auto: the newest version both sides have, up to DTLS 1.3 on an OpenSSL 4.1 build.
+        # dtls1.3: DTLS 1.3 only; refused at startup by a build without OpenSSL 4.1.
+        # default: auto
+        dtls_version dtls1.3;
+    }
+}
+```
+
+| `dtls_version` | OpenSSL 4.1 build | Other builds |
+|---|---|---|
+| `auto` (default) | up to DTLS 1.3, falls back to 1.2 | DTLS 1.2 |
+| `dtls1.3` | DTLS 1.3 only | refused at startup |
+| `dtls1.2` | DTLS 1.2 only | DTLS 1.2 only |
+
+* With `auto`, an OpenSSL 4.1 build gets DTLS 1.3 from Chrome, which supports it by default, and DTLS 1.2 from a client
+  that has only 1.2.
+* `--sys-ssl=on` against a system OpenSSL 4.1 or newer also gets DTLS 1.3, but OpenSSL 4.1.0's DTLS 1.3 server aborts
+  the handshake when a browser ACKs part of its flight after a packet loss ([openssl#33242](https://github.com/openssl/openssl/issues/33242)).
+  The bundled OpenSSL 4.1 carries the upstream fix, so prefer `--ssl-4=on`.
+* The native Windows build uses vcpkg's OpenSSL and stays on DTLS 1.2.
+* `/api/v1/features` has `dtls13`, which is true on a build with DTLS 1.3.
+
+### Try it with Chrome
+
+Chrome has SPED only behind a field trial. Start it with:
+
+```bash
+# macOS
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --force-fieldtrials=WebRTC-IceHandshakeDtls/Enabled/
+
+# Linux
+google-chrome --force-fieldtrials=WebRTC-IceHandshakeDtls/Enabled/
+```
+
+Then publish with [WHIP](http://localhost:8080/players/whip.html) or play with [WHEP](http://localhost:8080/players/whep.html)
+against SRS with `sped on`. With the trial, Chrome's offer has `a=ice-options:trickle sped googspedv1`; without it, only
+`trickle`.
+
+To check that SPED was used, query the clients API:
+
+```bash
+curl http://localhost:1985/api/v1/clients/
+```
+
+An RTC client whose session negotiated SPED has a `"sped"` object, for example:
+
+```json
+"sped": {"state": "complete", "embedded_sent": 0, "embedded_recv": 1, "raw_recv": 2, "handshake_ms": 2}
+```
+
+* `state` is `complete` when the handshake finished with SPED, or `off` when the client fell back.
+* `embedded_sent` and `embedded_recv` count the DTLS packets SRS sent and received inside STUN, and `raw_recv` the ones
+  it received as plain DTLS. On a lossless path Chrome embeds the first part of its ClientHello and sends the rest
+  plain, so `embedded_recv` is often 1.
+* `handshake_ms` is the time from the first STUN check to DTLS done.
+
+SRS also logs one line per session, such as `RTC: SPED complete, embedded sent=0, embedded recv=1, raw recv=2, handshake=2ms`.
+A client without SPED has no `sped` object. In `chrome://webrtc-internals`, the transport's `tlsVersion` is `FEFC` for
+DTLS 1.3 and `FEFD` for DTLS 1.2.
+
+### Results
+
+Measured on an Apple M4 Mac with two clients:
+
+* **A Go WebRTC player, for SPED over DTLS 1.2 under delay and loss.** pion/dtls has only DTLS 1.2 and no SPED, so the
+  player implements SPED itself on top of pion's DTLS 1.2, by carrying the DTLS records inside its STUN checks. It can't
+  measure SPED over DTLS 1.3.
+* **Chrome 158 with the SPED field trial, for DTLS 1.2 and 1.3.** It runs on a LAN only, with no added delay; one test
+  drops SRS's first STUN response.
+
+The Go player's results, 30 runs per point, from posting the offer to DTLS done. The delay is one way and applies to
+signaling too; the loss is of STUN and DTLS packets, each way:
+
+| One-way delay | Loss | p50 without SPED | p50 with SPED | p95 without SPED | p95 with SPED |
+|---|---|---|---|---|---|
+| 20 ms | 0% | 183 ms | 138 ms | 187 ms | 144 ms |
+| 60 ms | 0% | 502 ms | 384 ms | 510 ms | 392 ms |
+| 150 ms | 0% | 1230 ms | 918 ms | 1237 ms | 930 ms |
+| 60 ms | 25% | 1654 ms | 404 ms | 18841 ms | 527 ms |
+| 150 ms | 25% | 2215 ms | 966 ms | 9273 ms | 1085 ms |
+
+* Without loss, SPED saves one RTT: 45, 118 and 312 ms at 20, 60 and 150 ms one way.
+* At 25% loss, SPED keeps the p95 near one second, while without it 7–13% of the handshakes did not finish within 30 s.
+  No SPED handshake failed.
+* Chrome on a LAN connects in about 2 ms with and without SPED, on DTLS 1.2 and 1.3. The first video frame, about
+  175 ms, is the wait for the publisher's next keyframe, which SPED does not change.
+* With SPED, when SRS's first STUN response to Chrome is lost, the handshake still completes, about 50 ms later on
+  DTLS 1.2 and about 100 ms later on DTLS 1.3.
+
+The design, the packet formats and every test are in the SRS repository, [trunk/doc/WebRTC-SPED.md](https://github.com/ossrs/srs/blob/develop/trunk/doc/WebRTC-SPED.md).
+
+### Caveats
+
+* SPED is an individual IETF draft, not adopted by a working group, and its STUN attribute codepoints are not
+  assigned yet. SRS uses the ones Chrome uses, `0xC070` and `0xC071`, so a later assignment may need an SRS upgrade.
+* Chrome supports SPED only behind its field trial, and only Chrome; other browsers and clients connect without it.
+* OpenSSL 4.1 is not an LTS release. The OpenSSL 4.1 build and DTLS 1.3 are not the default.
+* SPED speeds up the connection, not the first frame: SRS sends media only after the DTLS handshake, and a player still
+  waits for a keyframe.
+* With SPED on DTLS 1.2, SRS starts sending media to a player only once the player has shown it finished DTLS, by an
+  ACK in STUN, a check without SPED attributes, or its first SRTP or SRTCP packet. This is about 50–65 ms after SRS's
+  own handshake on a LAN with Chrome, and it keeps a player whose last DTLS packet from SRS was lost from dropping the
+  media sent meanwhile.
 
 ## Stream URL
 

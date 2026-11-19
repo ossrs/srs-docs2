@@ -156,6 +156,8 @@ vhost rtc.vhost.srs.com {
 * `rtc.nack_prefer_rtx`：对端支持时，是否优先使用RFC 4588 RTX重传，默认off。详细参考[Config: NACK and RTX](./webrtc.md#config-nack-and-rtx)
 * `rtc.twcc`：是否开启TWCC的支持，即拥塞控制的反馈机制，默认on。
 * `rtc.dtls_role`：DTLS角色，active就是DTLS Client(主动发起)，passive是DTLS Server(被动接受)。
+* `rtc.dtls_version`：DTLS版本，可以是`auto`、`dtls1.0`、`dtls1.2`，使用OpenSSL 4.1编译时还可以是`dtls1.3`。详细参考[SPED and DTLS 1.3](./webrtc.md#sped-and-dtls-13)
+* `rtc.sped`：客户端支持时，是否在ICE检查中完成DTLS握手(SPED)，默认off。详细参考[SPED and DTLS 1.3](./webrtc.md#sped-and-dtls-13)
 
 ## Config Candidate
 
@@ -264,6 +266,161 @@ vhost rtc.vhost.srs.com {
 只有视频会使用RTX，浏览器不会为音频提供`rtx`。
 
 当协商使用RTX时，SDP answer中会携带`rtx`的Payload及其FID分组，SRS会在RTX SSRC上重传丢失的包。
+
+## SPED and DTLS 1.3
+
+WebRTC会话在传输媒体之前，要依次完成几个协议：WHIP或WHEP的offer和answer(1个RTT)，ICE检查(1个RTT)，
+以及DTLS握手(DTLS 1.2需要2个RTT)。SRS 8.0提供了两种实验性的加速方式，默认都是关闭的：
+
+* **SPED**(STUN Protocol for Embedding DTLS，[draft-hancke-webrtc-sped-01](https://www.ietf.org/archive/id/draft-hancke-webrtc-sped-01.html))：
+  把DTLS握手放到ICE的STUN Binding请求和响应中。客户端的ClientHello随第一个检查发出，SRS的第一个DTLS flight随响应返回，
+  因此节省1个RTT。握手包丢失时，下一个检查(大约50ms后)会再次携带它，而不用等待DTLS重传定时器，这个定时器每次丢包后会翻倍。
+* **DTLS 1.3**：握手只需要1个RTT，而不是2个。需要使用OpenSSL 4.1编译SRS，SPED同样支持DTLS 1.3。
+
+因此，DTLS 1.2建立连接需要4个RTT，使用SPED或DTLS 1.3需要3个，两者都用只需要2个。SPED在长距离或丢包的网络上效果最明显，
+比如移动网络；在局域网中，节省的RTT太小，基本感觉不到。
+
+### Enable SPED
+
+```
+vhost __defaultVhost__ {
+    rtc {
+        enabled on;
+        # Whether to answer a=ice-options:sped when the offer has it, so the DTLS handshake rides inside the
+        # ICE STUN Binding requests and responses (SPED). It saves one RTT.
+        # Overwrite by env SRS_VHOST_RTC_SPED for all vhosts.
+        # default: off
+        sped on;
+    }
+}
+```
+
+或者使用Docker：
+
+```bash
+export CANDIDATE="192.168.3.10"
+docker run --rm --env SRS_RTC_SERVER_CANDIDATE=$CANDIDATE \
+  --env SRS_RTMP_LISTEN=1935 --env SRS_HTTP_API_ENABLED=on --env SRS_HTTP_SERVER_ENABLED=on \
+  --env SRS_RTC_SERVER_ENABLED=on --env SRS_VHOST_RTC_ENABLED=on --env SRS_VHOST_RTC_SPED=on \
+  -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
+  ossrs/srs:8 \
+  objs/srs -e
+```
+
+* 只有当客户端的offer在`a=ice-options`中带有`sped`时，SRS才使用SPED，并在answer中回复`a=ice-options:sped`。
+  其他客户端和以前一样连接，因此即使同一个vhost中有各种客户端，也可以放心开启。
+* 如果客户端的第一个检查中没有SPED属性，SRS会为这个会话关闭SPED，DTLS握手和以前一样进行。
+* 支持UDP和[TCP](./webrtc.md#webrtc-over-tcp)传输的WebRTC，WHIP和WHEP都支持。
+* 配置值只能是`on`或`off`，其他值在启动时会报错。
+
+### Enable DTLS 1.3
+
+DTLS 1.3需要OpenSSL 4.1或更新的版本。默认编译和`ossrs/srs:8`镜像使用的是OpenSSL 1.1.1，只支持DTLS 1.2，
+因此需要使用自带的OpenSSL 4.1从源码编译SRS：
+
+```bash
+cd srs/trunk
+./configure --ssl-4=on && make
+```
+
+然后用`dtls_version`或环境变量`SRS_VHOST_RTC_DTLS_VERSION`设置版本：
+
+```
+vhost __defaultVhost__ {
+    rtc {
+        # auto: the newest version both sides have, up to DTLS 1.3 on an OpenSSL 4.1 build.
+        # dtls1.3: DTLS 1.3 only; refused at startup by a build without OpenSSL 4.1.
+        # default: auto
+        dtls_version dtls1.3;
+    }
+}
+```
+
+| `dtls_version` | OpenSSL 4.1编译 | 其他编译 |
+|---|---|---|
+| `auto`(默认) | 最高到DTLS 1.3，可回退到1.2 | DTLS 1.2 |
+| `dtls1.3` | 只用DTLS 1.3 | 启动时报错 |
+| `dtls1.2` | 只用DTLS 1.2 | 只用DTLS 1.2 |
+
+* 使用`auto`时，OpenSSL 4.1编译的SRS和Chrome会协商DTLS 1.3，Chrome默认支持；只支持1.2的客户端则使用DTLS 1.2。
+* `--sys-ssl=on`使用系统的OpenSSL 4.1或更新版本，也支持DTLS 1.3。但OpenSSL 4.1.0的DTLS 1.3服务器在丢包后，
+  如果浏览器ACK了它的flight的一部分，会中止握手([openssl#33242](https://github.com/openssl/openssl/issues/33242))。
+  自带的OpenSSL 4.1包含了上游的修复，因此建议使用`--ssl-4=on`。
+* Windows原生编译使用vcpkg的OpenSSL，仍然是DTLS 1.2。
+* `/api/v1/features`中的`dtls13`，在支持DTLS 1.3的编译中为true。
+
+### Try it with Chrome
+
+Chrome的SPED需要开启field trial，用下面的参数启动Chrome：
+
+```bash
+# macOS
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --force-fieldtrials=WebRTC-IceHandshakeDtls/Enabled/
+
+# Linux
+google-chrome --force-fieldtrials=WebRTC-IceHandshakeDtls/Enabled/
+```
+
+然后对开启了`sped on`的SRS，用[WHIP](http://localhost:8080/players/whip.html)推流，或者用[WHEP](http://localhost:8080/players/whep.html)播放。
+开启trial后，Chrome的offer中是`a=ice-options:trickle sped googspedv1`；没有开启时只有`trickle`。
+
+查询clients API，确认是否使用了SPED：
+
+```bash
+curl http://localhost:1985/api/v1/clients/
+```
+
+协商了SPED的RTC客户端会有`"sped"`对象，例如：
+
+```json
+"sped": {"state": "complete", "embedded_sent": 0, "embedded_recv": 1, "raw_recv": 2, "handshake_ms": 2}
+```
+
+* `state`：握手通过SPED完成时为`complete`，客户端回退时为`off`。
+* `embedded_sent`和`embedded_recv`是SRS在STUN中发送和接收的DTLS包数，`raw_recv`是以普通DTLS接收的包数。
+  在没有丢包的网络上，Chrome把ClientHello的第一部分放在STUN中，其余部分直接发送，所以`embedded_recv`经常是1。
+* `handshake_ms`是从第一个STUN检查到DTLS完成的时间。
+
+SRS还会为每个会话打印一行日志，例如`RTC: SPED complete, embedded sent=0, embedded recv=1, raw recv=2, handshake=2ms`。
+没有使用SPED的客户端没有`sped`对象。在`chrome://webrtc-internals`中，transport的`tlsVersion`为`FEFC`表示DTLS 1.3，
+`FEFD`表示DTLS 1.2。
+
+### Results
+
+在Apple M4的Mac上，使用两种客户端测量：
+
+* **Go实现的WebRTC播放器，测量SPED over DTLS 1.2在延迟和丢包下的表现。** pion/dtls只支持DTLS 1.2，也不支持SPED，
+  所以播放器基于pion的DTLS 1.2自己实现了SPED，把DTLS包放在STUN检查中。它不能测量SPED over DTLS 1.3。
+* **开启SPED field trial的Chrome 158，测量DTLS 1.2和1.3。** 只在局域网中测试，没有增加延迟；有一个测试会丢掉SRS的第一个STUN响应。
+
+Go播放器的结果如下，每个点30次，时间从提交offer到DTLS完成。延迟是单向的，信令也有延迟；丢包只针对STUN和DTLS包，两个方向都丢：
+
+| 单向延迟 | 丢包 | p50 不用SPED | p50 使用SPED | p95 不用SPED | p95 使用SPED |
+|---|---|---|---|---|---|
+| 20 ms | 0% | 183 ms | 138 ms | 187 ms | 144 ms |
+| 60 ms | 0% | 502 ms | 384 ms | 510 ms | 392 ms |
+| 150 ms | 0% | 1230 ms | 918 ms | 1237 ms | 930 ms |
+| 60 ms | 25% | 1654 ms | 404 ms | 18841 ms | 527 ms |
+| 150 ms | 25% | 2215 ms | 966 ms | 9273 ms | 1085 ms |
+
+* 没有丢包时，SPED节省1个RTT：单向延迟20、60和150ms时，分别节省45、118和312ms。
+* 25%丢包时，使用SPED的p95在1秒左右；不用SPED时，有7–13%的握手在30秒内没有完成。使用SPED的握手没有失败。
+* 在局域网中，Chrome无论是否使用SPED，DTLS 1.2和1.3都在2ms左右连接成功。第一个视频帧大约175ms，
+  是在等待推流端的下一个关键帧，SPED不会改变这个时间。
+* 使用SPED时，如果SRS发给Chrome的第一个STUN响应丢了，握手仍然能完成，DTLS 1.2大约晚50ms，DTLS 1.3大约晚100ms。
+
+设计、包格式和所有测试，请参考SRS仓库中的[trunk/doc/WebRTC-SPED.md](https://github.com/ossrs/srs/blob/develop/trunk/doc/WebRTC-SPED.md)。
+
+### Caveats
+
+* SPED是IETF的个人草案，还没有被工作组采纳，它的STUN属性编号也还没有分配。SRS使用的是Chrome使用的`0xC070`和`0xC071`，
+  以后正式分配时，可能需要升级SRS。
+* 只有Chrome支持SPED，而且需要开启field trial；其他浏览器和客户端不使用SPED，正常连接。
+* OpenSSL 4.1不是LTS版本。OpenSSL 4.1编译和DTLS 1.3都不是默认的。
+* SPED加快的是连接，而不是第一帧：SRS在DTLS握手完成后才发送媒体，播放器仍然需要等待关键帧。
+* 在DTLS 1.2上启用SPED时，SRS要等播放器证明它完成了DTLS，才开始给它发送媒体：STUN中的ACK、不带SPED属性的检查，或者它的第一个SRTP或SRTCP包。
+  在局域网中用Chrome测试，这比SRS自己的握手完成晚大约50到65毫秒；这样，如果SRS的最后一个DTLS包丢了，播放器也不会丢弃期间发送的媒体。
 
 ## Stream URL
 
